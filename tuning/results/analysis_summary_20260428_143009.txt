@@ -1,0 +1,8 @@
+match_analyzer summary — 20260428_143009
+seeds: 0..599 (600 матчей)
+winrate: 320/600 = 0.533
+avg final ships_diff: +1314.8
+
+Files:
+  /Users/adel/Downloads/Telegram Desktop/Новая папка/analysis_meta_20260428_143009.csv
+  /Users/adel/Downloads/Telegram Desktop/Новая папка/analysis_ts_20260428_143009.parquet
