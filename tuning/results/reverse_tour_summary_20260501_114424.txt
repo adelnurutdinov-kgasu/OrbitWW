@@ -1,0 +1,23 @@
+reverse_tournament summary — 20260501_114424
+seeds: 1..70  train=49 holdout=21
+
+TRAIN baseline winrate:  0.429
+TRAIN after-search WR:   1.000  (solved 28 of 28 losses)
+HOLDOUT baseline:        0.524
+HOLDOUT consensus:       0.571  (должно быть ≥ baseline; иначе переобучение)
+
+DEAD-END seeds (0): []
+  → их разбираем отдельно: или баг агента, или структурно невозможные карты.
+
+Consensus weights (median по всем победным trial-row):
+  activity_weight        1.27
+  idle_floor             28
+  distance_comfort       0.3909
+  risk_tolerance         0
+  ships_weight           3.557
+  eta_bonus              31.413
+  priority_bonus         1.6609
+  stress_top_k           3
+  stress_gamma           0.5796
+
+data: /Users/adel/Documents/GitHub/OrbitWW/tuning/results/reverse_tour_20260501_114424.csv

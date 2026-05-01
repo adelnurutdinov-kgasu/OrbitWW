@@ -73,6 +73,25 @@ class SwarmWeights:
     eta_bonus:        float = 30.0    # tiebreaker: ближе/быстрее → выше value
     priority_bonus:   float = 1.0     # вес priority (из zones) в value
     ships_weight:     float = 4.0     # «мяч на её стороне»: log1p(ships актора) даёт буст
+
+    # Активность: чем выше — тем сильнее «застоявшиеся» планеты тащат свои
+    # действия вверх в аукционе. Idle = ships − idle_floor. Линейный буст,
+    # не log: чтобы 100 ship'овая планета чувствовалась сильно мощнее 30-ti.
+    # 0 = выкл (используется только log-вариант ships_weight).
+    activity_weight:  float = 0.5     # вес idle-bonus (на 1 idle-корабль)
+    idle_floor:       int   = 25      # ships ниже считаются «активным гарнизоном»
+
+    # Дистанция: насколько штрафуем дальние планы. eta_term = eta_bonus / eta^(1-comfort).
+    # 0 = штраф 1/eta (текущий), 1 = плоско (eta вообще не влияет).
+    # 0.5 = 1/sqrt(eta) — компромисс: дальние ещё штрафуются, но не катастрофично.
+    distance_comfort: float = 0.0
+
+    # Толерантность к риску: уменьшаем SAFETY_OVERKILL у атак (буфер сверх defender).
+    # Чем выше — тем больше «тонко-проходных» планов становятся success'ными:
+    # на planета сейчас может быть на 2 ship'а избыточно, не атакует, мы переждали ход
+    # и потеряли темп. С risk=1 owned tgt требует +1 (вместо +2), neutral +0 (вместо +1).
+    # 0 = consertative current, 1 = aggressive. Дальше ставить опасно — strict-< в движке.
+    risk_tolerance:  int   = 0
     # Transfer (standalone TRANSFER P→Q вне duplet'a). По умолчанию выключен:
     # supply для атак идёт только через pipeline/multi_sync (осознанный duplet),
     # defense — через agent._build_defense_plans (raw=ours, projected=enemy).
@@ -127,20 +146,37 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
     """
     margin = float(plan.get('margin', 0.0))
     eta    = float(plan.get('t_total', 0.0)) + 1.0
-    eta_term = weights.eta_bonus / eta
+
+    # eta-штраф с поправкой distance_comfort:
+    #   comfort=0 → 1/eta (классика)
+    #   comfort=1 → константа (eta перестаёт штрафоваться)
+    #   comfort=0.5 → 1/sqrt(eta) (мягко)
+    comfort = max(0.0, min(1.0, getattr(weights, 'distance_comfort', 0.0)))
+    eta_term = weights.eta_bonus / (eta ** (1.0 - comfort))
+
     prio = 0.0
     if priority_lookup is not None:
         prio = priority_lookup.get(plan.get('tgt_id'), 0.0)
 
-    ships_term = 0.0
+    ships_term   = 0.0
+    activity_term = 0.0
     if ships_lookup is not None:
-        actor_max_ships = max(
-            (ships_lookup.get(aid, 0) for aid, _c in _action_actors(plan)),
-            default=0,
-        )
+        actor_ships_list = [
+            ships_lookup.get(aid, 0) for aid, _c in _action_actors(plan)
+        ]
+        actor_max_ships = max(actor_ships_list, default=0)
         ships_term = weights.ships_weight * math.log1p(max(0, actor_max_ships))
 
-    return margin + eta_term + weights.priority_bonus * prio + ships_term
+        # активность: насколько актор «застоялся». Берём максимум по акторам
+        # (любой загруженный actor → план поднимается), линейно.
+        idle_max = max(
+            (max(0, s - weights.idle_floor) for s in actor_ships_list),
+            default=0,
+        )
+        activity_term = weights.activity_weight * idle_max
+
+    return (margin + eta_term + weights.priority_bonus * prio
+            + ships_term + activity_term)
 
 
 # ── Stress ──────────────────────────────────────────────────────────────
@@ -367,9 +403,10 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
         return [], {'reason': 'no ours or no targets'}
 
     # 0. Все боевые candidates от существующего движка attacks.py
+    risk = int(getattr(weights, 'risk_tolerance', 0))
     candidates = []
     for tgt in targets:
-        plans = all_plans(state, tgt, ours, horizon=horizon, player=player)
+        plans = all_plans(state, tgt, ours, horizon=horizon, player=player, risk=risk)
         for pl in plans:
             if pl.get('success') and _plan_total_ships(pl) >= MIN_USEFUL_STRIKE:
                 candidates.append(pl)

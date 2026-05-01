@@ -1,0 +1,8 @@
+match_analyzer summary — 20260501_112052
+seeds: 1..70 (70 матчей)
+winrate: 32/70 = 0.457
+avg final ships_diff: +1345.6
+
+Files:
+  /Users/adel/Documents/GitHub/OrbitWW/tuning/results/analysis_meta_20260501_112052.csv
+  /Users/adel/Documents/GitHub/OrbitWW/tuning/results/analysis_ts_20260501_112052.parquet

@@ -1,0 +1,12 @@
+reverse_tournament summary — 20260501_232227
+seeds: 1..70  train=49 holdout=21
+
+TRAIN baseline winrate:  1.000
+TRAIN after-search WR:   1.000  (solved 0 of 0 losses)
+HOLDOUT baseline:        0.952
+
+DEAD-END seeds (0): []
+  → их разбираем отдельно: или баг агента, или структурно невозможные карты.
+
+
+data: /Users/adel/Documents/GitHub/OrbitWW/tuning/results/reverse_tour_20260501_232227.csv

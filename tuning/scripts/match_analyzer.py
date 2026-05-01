@@ -42,8 +42,8 @@ import pandas as pd
 # КОНФИГ
 # ══════════════════════════════════════════════════════════════════════════
 
-N_SEEDS     = 600
-SEED_OFFSET = 0
+N_SEEDS     = 70
+SEED_OFFSET = 1
 N_WORKERS   = max(1, os.cpu_count() // 2)
 
 # Кластеризация: сколько кластеров, какие фичи использовать.
@@ -63,8 +63,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(HERE))
 RESULTS_DIR  = os.path.join(os.path.dirname(HERE), "results")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-OUR_PATH    = os.path.join(PROJECT_ROOT, "agent_bundle", "agent.py")
-SUB_PATH    = os.path.join(PROJECT_ROOT, "submission.py")
+OUR_PATH    = os.path.join(PROJECT_ROOT, "agent_bundle_swarm", "agent.py")
+SUB_PATH    = os.path.join(PROJECT_ROOT, "sub2.py")
 TS          = datetime.now().strftime('%Y%m%d_%H%M%S')
 META_CSV    = os.path.join(RESULTS_DIR, f"analysis_meta_{TS}.csv")
 TS_PARQUET  = os.path.join(RESULTS_DIR, f"analysis_ts_{TS}.parquet")

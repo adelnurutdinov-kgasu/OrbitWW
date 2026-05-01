@@ -39,10 +39,20 @@ def _effective_prod(tgt):
     return float(tgt.production)
 
 
-def _overkill(tgt):
+def _overkill(tgt, risk=0):
     """Размер буфера сверх defender. Для нейтралов производства нет ⇒ дрейф
-    eta не страшен, хватает +1 (от ничьей). Для owned — +2."""
-    return SAFETY_OVERKILL_NEUTRAL if tgt.owner == NEUTRAL_OWNER else SAFETY_OVERKILL
+    eta не страшен, хватает +1 (от ничьей). Для owned — +2.
+
+    risk (0..2) — снижает буфер. ВАЖНО: минимум 1, потому что движок
+    использует strict-< при бое (атака побеждает только если ships > defender,
+    ничья = поражение). С overkill=0 атомный исполнитель отбрасывает план
+    как «wont_win: ships == defender_at_eta».
+
+    risk=1 убирает «дрейф eta» запас (только у owned: 2 → 1, у нейтрала
+    остаётся 1). risk=2 = синоним risk=1, ниже опуститься нельзя.
+    """
+    base = SAFETY_OVERKILL_NEUTRAL if tgt.owner == NEUTRAL_OWNER else SAFETY_OVERKILL
+    return max(1, base - int(risk))
 
 SAFETY_OVERKILL        = 2     # сколько кораблей сверх defender (для OWNED цели).
                                # =2 покрывает: 1 на ничью (движок strict-<)
@@ -135,7 +145,7 @@ def _is_more_frontline(att, sup, all_planets, player):
          < _mean_d_to_non_ours(sup, all_planets, player)
 
 
-def _t_solo_capture(state, att, tgt, incoming=0.0):
+def _t_solo_capture(state, att, tgt, incoming=0.0, risk=0):
     """
     Оценка: за СКОЛЬКО ходов att захватит tgt самостоятельно (без supply).
     Считает: сколько ходов копить производство → fly direct.
@@ -153,7 +163,7 @@ def _t_solo_capture(state, att, tgt, incoming=0.0):
     omega = state.omega
     proj_at = _projected_at(state, tgt.id)
     eff_prod_def = _effective_prod(tgt)
-    overkill = _overkill(tgt)
+    overkill = _overkill(tgt, risk=risk)
     avail_now = max(0.0, att.ships - RESERVE_ON_ATT)
 
     # Итеративно сходимся: на ход t_wait att имеет (avail_now + prod*t_wait),
@@ -259,7 +269,7 @@ def _defender_at_eta(state, tgt, eta):
     return tgt.ships + _effective_prod(tgt) * max(0.0, eta - proj_at)
 
 
-def _required_strike(state, att, tgt, omega, init_eta_ships, incoming):
+def _required_strike(state, att, tgt, omega, init_eta_ships, incoming, risk=0):
     """
     Считает (eta, defender, needed) для атаки att→tgt.
     Если state — ProjectedState, tgt.ships уже учитывает прибытия до projected_at,
@@ -268,7 +278,7 @@ def _required_strike(state, att, tgt, omega, init_eta_ships, incoming):
     """
     eta = _eta(att, tgt, init_eta_ships, omega)
     needed = 0
-    overkill = _overkill(tgt)
+    overkill = _overkill(tgt, risk=risk)
     for _ in range(ETA_REFINE_ITERS + 1):
         # `_defender_at_eta` сам решает: ранний перехват по raw (eta<proj_at)
         # или стандартный путь по projected с производством после флипа.
@@ -286,12 +296,12 @@ def _required_strike(state, att, tgt, omega, init_eta_ships, incoming):
 
 # ── eval_direct ────────────────────────────────────────────────────────
 
-def eval_direct(state, att, tgt, incoming=0.0):
+def eval_direct(state, att, tgt, incoming=0.0, risk=0):
     """Прямая атака att → tgt. x_att = минимум для победы (с учётом incoming)."""
     if _seg_blocked(att, tgt):
         return None
 
-    eta, defender, needed = _required_strike(state, att, tgt, state.omega, att.ships, incoming)
+    eta, defender, needed = _required_strike(state, att, tgt, state.omega, att.ships, incoming, risk=risk)
     available = att.ships - RESERVE_ON_ATT
     success   = needed <= available
 
@@ -317,7 +327,7 @@ def eval_direct(state, att, tgt, incoming=0.0):
 
 # ── eval_multi_sync ────────────────────────────────────────────────────
 
-def eval_multi_sync(state, sup, att, tgt, incoming=0.0):
+def eval_multi_sync(state, sup, att, tgt, incoming=0.0, risk=0):
     """
     Синхронная атака с двух источников. Используется когда att одного НЕ ХВАТАЕТ.
     att шлёт всё → sup добивает минимум.
@@ -354,7 +364,7 @@ def eval_multi_sync(state, sup, att, tgt, incoming=0.0):
     # defender — учитывает ранний перехват (eta<projected_at → raw)
     defender  = _defender_at_eta(state, tgt, t_sync)
     effective = max(0.0, defender - incoming)
-    needed    = int(math.ceil(effective)) + _overkill(tgt)
+    needed    = int(math.ceil(effective)) + _overkill(tgt, risk=risk)
 
     # если att одного хватает → это direct, тут не место
     if att_part_max >= needed:
@@ -403,7 +413,7 @@ def eval_multi_sync(state, sup, att, tgt, incoming=0.0):
 
 # ── eval_pipe ──────────────────────────────────────────────────────────
 
-def eval_pipe(state, sup, att, tgt, incoming=0.0):
+def eval_pipe(state, sup, att, tgt, incoming=0.0, risk=0):
     """Pipeline: sup → att → tgt. sup отправляет минимум для добивки."""
     if _seg_blocked(sup, att) or _seg_blocked(att, tgt):
         return None
@@ -488,7 +498,7 @@ def eval_pipe(state, sup, att, tgt, incoming=0.0):
     if sup_dir_blocked:
         relay_reason = f'sup→tgt blocked by sun (angle={angle_deg:.0f}°)'
     else:
-        ms = eval_multi_sync(state, sup, att, tgt, incoming=incoming)
+        ms = eval_multi_sync(state, sup, att, tgt, incoming=incoming, risk=risk)
         if ms is None:
             relay_reason = f'multi_sync infeasible (angle={angle_deg:.0f}°)'
         elif ms['success'] and not success_relay:
@@ -529,7 +539,7 @@ def eval_pipe(state, sup, att, tgt, incoming=0.0):
 
 # ── all_plans ──────────────────────────────────────────────────────────
 
-def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0):
+def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0, risk=0):
     """Все возможные планы атаки на tgt.
 
     Если state — ProjectedState, incoming уже учтён в tgt.ships, поэтому
@@ -544,17 +554,17 @@ def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0):
     for att in ours:
         if att.id == tgt.id:
             continue
-        d = eval_direct(state, att, tgt, incoming=incoming)
+        d = eval_direct(state, att, tgt, incoming=incoming, risk=risk)
         if d and d['t_total'] <= horizon:
             plans.append(d)
 
     for att, sup in _product(ours, ours):
         if sup.id in (att.id, tgt.id) or att.id == tgt.id:
             continue
-        ms = eval_multi_sync(state, sup, att, tgt, incoming=incoming)
+        ms = eval_multi_sync(state, sup, att, tgt, incoming=incoming, risk=risk)
         if ms and ms['t_total'] <= horizon:
             plans.append(ms)
-        pp = eval_pipe(state, sup, att, tgt, incoming=incoming)
+        pp = eval_pipe(state, sup, att, tgt, incoming=incoming, risk=risk)
         if pp and pp['t_total'] <= horizon:
             plans.append(pp)
     return plans
