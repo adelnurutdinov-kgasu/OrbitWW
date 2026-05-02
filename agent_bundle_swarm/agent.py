@@ -368,7 +368,7 @@ def _execute_plan_atomically(state, plan, committed):
     return moves, 'ok'
 
 
-def agent(obs):
+def _agent_impl(obs, deadline=None):
     player    = obs.get('player', 0)
     state_raw = GameState.from_kaggle_obs(obs)
 
@@ -498,6 +498,8 @@ def agent(obs):
         attack_plans, swarm_dbg = swarm_plan(
             state, player, targets,
             weights=SWARM_WEIGHTS, priority_lookup=prio_lookup,
+            max_targets=12,         # cap: на больших картах не успеваем за бюджет kaggle
+            deadline=deadline,      # передаём из обёртки agent()
         )
         if _dbg.enabled():
             try:
@@ -541,3 +543,27 @@ def agent(obs):
     _dbg.log_moves(moves)
     _dbg.end_turn()
     return moves
+
+
+# ── kaggle-safe entrypoint ──────────────────────────────────────────────
+# Никогда не падаем. Любая ошибка → пустой список ходов (агент просто стоит,
+# но матч продолжается, не дисквал). Также soft deadline по wall-clock,
+# чтобы swarm_plan корректно прервался при cap превышен.
+def agent(obs, config=None):
+    import time as _time
+    # kaggle обычно даёт 1 секунду на step; берём 0.85 как soft бюджет
+    act_timeout = 1.0
+    if config is not None:
+        try:
+            act_timeout = float(config.get('actTimeout', 1.0))
+        except Exception:
+            pass
+    deadline = _time.perf_counter() + max(0.4, min(act_timeout * 0.85, 5.0))
+    try:
+        return _agent_impl(obs, deadline=deadline)
+    except Exception as _e:
+        try:
+            _dbg.log_error('agent', _e)
+        except Exception:
+            pass
+        return []

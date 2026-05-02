@@ -386,14 +386,20 @@ def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights
 # ── Главная точка входа ────────────────────────────────────────────────
 
 def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
-               horizon=ATTACK_HORIZON):
+               horizon=ATTACK_HORIZON, max_targets=None, deadline=None):
     """
     Полный цикл AgentSwarm: candidates → stress → auction → redistribute.
 
+    max_targets: жёсткий cap на число целей для перебора пар (None = все).
+                 Если cap, берём топ по priority_lookup.
+    deadline:    time.perf_counter() граница в секундах. После неё прекращаем
+                 наращивать candidates (что собрали — то собрали).
+
     Возвращает (plans, debug):
-      plans  — финальный список планов (направляется в agent для исполнения)
-      debug  — словарь метаинформации (stress, остатки, разбивка) для логов
+      plans  — финальный список планов
+      debug  — словарь метаинформации (stress, остатки, разбивка)
     """
+    import time as _t
     if weights is None:
         weights = DEFAULT_WEIGHTS
 
@@ -402,10 +408,19 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
     if not ours or not targets:
         return [], {'reason': 'no ours or no targets'}
 
+    # cap по числу целей (на ход с 30+ нейтралами это спасает от per-step timeout)
+    if max_targets is not None and len(targets) > max_targets:
+        if priority_lookup:
+            targets = sorted(targets, key=lambda t: -priority_lookup.get(t.id, 0))[:max_targets]
+        else:
+            targets = list(targets)[:max_targets]
+
     # 0. Все боевые candidates от существующего движка attacks.py
     risk = int(getattr(weights, 'risk_tolerance', 0))
     candidates = []
     for tgt in targets:
+        if deadline is not None and _t.perf_counter() > deadline:
+            break  # бюджет исчерпан, играем что собрали
         plans = all_plans(state, tgt, ours, horizon=horizon, player=player, risk=risk)
         for pl in plans:
             if pl.get('success') and _plan_total_ships(pl) >= MIN_USEFUL_STRIKE:
