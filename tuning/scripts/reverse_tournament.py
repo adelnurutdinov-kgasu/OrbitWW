@@ -68,12 +68,22 @@ SEED_OFFSET     = 1            # стартовый seed (сиды = OFFSET..OFF
 TRAIN_FRAC      = 0.7          # доля сидов для поиска; остальные — holdout
 SPLIT_SEED      = 42           # детерминированное разбиение
 
-PHASE1_BUDGET   = 100           # сколько random попыток на проигранный сид
-PHASE2_BUDGET   = 0         # CEM-добор если фаза 1 не дала победы
+PHASE1_BUDGET   = 100          # сколько random попыток на проигранный сид
+PHASE2_BUDGET   = 0            # CEM-добор если фаза 1 не дала победы
 CEM_ELITE       = 5            # сколько лучших попыток фазы 1 берём для CEM
 EARLY_STOP      = True         # после первой победы на сиде — следующий сид
 
-MAX_STEPS_PER_MATCH = 300      # лимит ходов в локальном детерминированном матче
+# Где гонять матчи:
+#   'kaggle' — kaggle_environments.make("orbit_wars", ...). Геометрия и
+#              механика как в реальной игре. Внутри одного запуска скрипта
+#              исход стабилен (то же дрейф между ПЕРЕЗАПУСКАМИ — но нам
+#              этого хватает для honest сравнения весов внутри прогона).
+#   'local'  — local_match (orbit_sim напрямую). Побайтово детерминирован,
+#              но карта генерится по нашим правилам, не как у kaggle. Полезно
+#              для unit-тестирования логики, не для финального тюнинга.
+RUN_BACKEND     = 'kaggle'     # 'kaggle' | 'local'
+
+MAX_STEPS_PER_MATCH = 300      # лимит ходов в local_match (kaggle решает сам)
 
 N_WORKERS       = max(1, os.cpu_count() // 2)
 
@@ -126,11 +136,43 @@ def _load_module(path, name):
     return mod
 
 
+def _run_one_kaggle(seed, our_mod, sub_mod):
+    """Один матч через kaggle_environments. Возвращает dict в формате как
+    у local_match.run_match для совместимости вверх по стеку."""
+    from kaggle_environments import make
+    env = make("orbit_wars", debug=False, configuration={"seed": seed})
+    t0 = time.time()
+    env.run([our_mod.agent, sub_mod.agent])
+    elapsed = time.time() - t0
+
+    final = env.steps[-1]
+    r0 = final[0].get('reward', 0) or 0
+    r1 = final[1].get('reward', 0) or 0
+    obs = final[0].get('observation') or {}
+    planets = obs.get('planets') or []
+    ships_p0 = sum((p[5] or 0) for p in planets if p[1] == 0)
+    ships_p1 = sum((p[5] or 0) for p in planets if p[1] == 1)
+    return {
+        'win_a':  int(r0 > r1),
+        'win_b':  int(r0 < r1),
+        'draw':   int(r0 == r1),
+        'ships_a_final': ships_p0,
+        'ships_b_final': ships_p1,
+        'ships_diff': ships_p0 - ships_p1,
+        'steps':    len(env.steps),
+        'time_sec': round(elapsed, 2),
+    }
+
+
 def run_one(task):
     """Один матч: (seed, weights_overrides_dict) → metrics dict.
 
-    Использует local_match.run_match (обход kaggle_environments). Полностью
-    детерминирован: тот же seed + те же weights → тот же исход.
+    RUN_BACKEND='kaggle' (default) — через kaggle_environments. Один матч на
+    trial: внутри одного запуска скрипта результат стабилен, нам этого хватает
+    для honest сравнения весов. Между перезапусками скрипта результаты могут
+    немного дрейфовать — это нормально и не лечится без monkey-patch'a sub2.
+
+    RUN_BACKEND='local' — fallback через orbit_sim.simulate_step.
     """
     seed, overrides = task
     _silence_debug_logs()
@@ -139,29 +181,29 @@ def run_one(task):
     if bundle_dir not in sys.path:
         sys.path.insert(0, bundle_dir)
 
-    # уникальный suffix чтобы избежать кеша sys.modules
     suffix = f"{seed}_{abs(hash(frozenset(overrides.items()))) % 10**8}"
     our_mod = _load_module(OUR_PATH, f"_our_rev_{suffix}")
     sub_mod = _load_module(SUB_PATH, f"_sub_rev_{suffix}")
 
     # инъекция SwarmWeights
     from swarm import SwarmWeights
-    base = asdict(SwarmWeights())   # дефолтный полный набор
+    base = asdict(SwarmWeights())
     base.update(overrides)
     for f in dc_fields(SwarmWeights):
         if f.type is int and f.name in base:
             base[f.name] = int(base[f.name])
     our_mod.SWARM_WEIGHTS = SwarmWeights(**base)
-    # sanity: убеждаемся что инъекция реально применилась
     assert our_mod.SWARM_WEIGHTS.activity_weight == base['activity_weight'], \
         "SWARM_WEIGHTS не инжектились в our_mod"
 
-    # детерминированный локальный матч
-    if HERE not in sys.path:
-        sys.path.insert(0, HERE)
-    from local_match import run_match
-    res = run_match(seed, our_mod.agent, sub_mod.agent,
-                    bundle_dir=bundle_dir, max_steps=MAX_STEPS_PER_MATCH)
+    if RUN_BACKEND == 'kaggle':
+        res = _run_one_kaggle(seed, our_mod, sub_mod)
+    else:  # 'local'
+        if HERE not in sys.path:
+            sys.path.insert(0, HERE)
+        from local_match import run_match
+        res = run_match(seed, our_mod.agent, sub_mod.agent,
+                        bundle_dir=bundle_dir, max_steps=MAX_STEPS_PER_MATCH)
 
     return {
         'seed': seed,
@@ -175,6 +217,7 @@ def run_one(task):
         'ships_sub_final': res['ships_b_final'],
         'ships_diff': res['ships_diff'],
         'time_sec': res['time_sec'],
+        'backend':  RUN_BACKEND,
     }
 
 
