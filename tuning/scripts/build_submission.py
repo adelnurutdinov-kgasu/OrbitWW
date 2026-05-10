@@ -27,12 +27,12 @@ ORDER = [
     'orbit_sim.py',    # depends on shooting
     'force.py',        # depends on orbit_sim
     'agent_debug.py',  # leaf
-    'shooting.py',     # уже выше, не дублировать
     'projection.py',   # depends on shooting
     'attacks.py',      # depends on orbit_sim, force, shooting
     'zones.py',        # depends on orbit_sim, force, shooting
     'swarm.py',        # depends on orbit_sim, force, attacks
-    'agent.py',        # depends on все выше
+    'context.py',      # GUL — без sibling-deps (только math, dataclasses)
+    'agent.py',        # depends on все выше + context
 ]
 # уникализируем сохраняя порядок
 seen = set()
@@ -40,7 +40,7 @@ ORDER = [m for m in ORDER if not (m in seen or seen.add(m))]
 
 # Sibling-modules чьи импорты надо вырезать
 SIBLINGS = {'orbit_sim', 'force', 'projection', 'shooting', 'zones',
-            'attacks', 'swarm', 'agent_debug'}
+            'attacks', 'swarm', 'agent_debug', 'context'}
 
 
 def _strip_sibling_imports(src):

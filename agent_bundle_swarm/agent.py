@@ -29,6 +29,7 @@ from attacks import best_attacks, SAFETY_OVERKILL, all_plans, ATTACK_HORIZON
 from shooting import aim_hybrid, simulate_launch, segment_hits_sun
 from force import _rendezvous_eta
 from swarm import swarm_plan, SwarmWeights, DEFAULT_WEIGHTS
+from context import compute_context, context_summary
 import agent_debug as _dbg
 
 # ── AgentSwarm switch ─────────────────────────────────────────────────
@@ -383,6 +384,21 @@ def _agent_impl(obs, deadline=None):
              getattr(state_raw, 'step', -1))
     _dbg.begin_turn(_step, player, len(state.planets), len(state.fleets))
     _dbg.log_fleets(state.fleets, player)
+
+    # Game Understanding Layer — глобальное «понимание» текущего хода.
+    # Пока просто логируем для проверки; интегрировать в scoring — следующий шаг.
+    try:
+        ctx = compute_context(state, player)
+        if _dbg.enabled():
+            try:
+                import agent_debug as _d
+                _d._w(f'[GUL]  {context_summary(ctx)}')
+            except Exception:
+                pass
+    except Exception as _e:
+        ctx = None
+        try: _dbg.log_error('compute_context', _e)
+        except Exception: pass
 
     # 0.5. Адаптивная ширина: по ratio = our_ships/total выбираем top_n
     #      финальных планов и priority_floor (отсечку по приоритету целей).
