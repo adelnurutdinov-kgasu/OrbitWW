@@ -23,12 +23,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "40_action_plans.md",
+                "file": "00_index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "40_action_plans"
+              "title": "00_index"
             }
           }
         ],
@@ -105,7 +105,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "40_action_plans.md",
+                "file": "00_index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +115,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Обратные ссылки для 40_action_plans"
+              "title": "Обратные ссылки для 00_index"
             }
           },
           {
@@ -124,12 +124,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "40_action_plans.md",
+                "file": "00_index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Исходящие ссылки из 40_action_plans"
+              "title": "Исходящие ссылки из 00_index"
             }
           },
           {
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "40_action_plans.md",
+                "file": "00_index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Структура 40_action_plans"
+              "title": "Структура 00_index"
             }
           }
         ]
@@ -197,10 +197,10 @@
   "active": "855ac8be1a170698",
   "lastOpenFiles": [
     "30_pairs.md",
+    "40_action_plans.md",
     "20_intrinsic.md",
     "70_swarm_decisions.md",
     "99_dependencies.md",
-    "40_action_plans.md",
     "10_atoms.md",
     "00_index.md"
   ]

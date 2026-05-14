@@ -4,6 +4,11 @@
 Каждый ход:
   0. Проекция     — project_state резолвит уже летящие флоты (свои+чужие):
                     каждая планета видится в момент последнего прибытия.
+  [РАННЯЯ ИГРА — MCTS]
+  0.5. MCTS       — если step < EARLY_GAME_SWITCH и планет <= EARLY_MAX_PLANETS,
+                    запускаем run_mcts в ПАР (Пространство Адекватных Решений).
+                    Возвращает лучший Action напрямую, минуя зонирование/атаки.
+  [ОБЫЧНАЯ ЛОГИКА]
   1. Зонирование  — compute_zones_from_state определяет зону каждой планеты
   2. Выбор целей  — easy_target / priority_target с лучшим priority
   3. Атаки        — best_attacks подбирает план (direct/multi_sync/pipeline) с
@@ -31,6 +36,53 @@ from force import _rendezvous_eta
 from swarm import swarm_plan, SwarmWeights, DEFAULT_WEIGHTS
 from context import compute_context, context_summary
 import agent_debug as _dbg
+
+# ── MCTS / ПАР (ранняя игра) ──────────────────────────────────────────────
+try:
+    from action_space import generate_actions, generate_opponent_actions
+    from mcts import run_mcts, OpponentModel
+    _MCTS_AVAILABLE = True
+except ImportError as _mcts_import_err:
+    _MCTS_AVAILABLE = False
+
+# ── MCTS параметры (ранняя игра) ─────────────────────────────────────────
+# MCTS включается когда: ход < EARLY_GAME_SWITCH И планет <= EARLY_MAX_PLANETS
+# Чтобы отключить глобально — выставить USE_MCTS = False.
+USE_MCTS             = True
+EARLY_GAME_SWITCH    = 35    # первые N ходов → MCTS (затем обычная логика)
+EARLY_MAX_PLANETS    = 20    # не более M планет на карте → MCTS (защита от больших карт)
+MCTS_TIME_FRACTION   = 0.65  # доля оставшегося бюджета, отдаваемая MCTS
+
+# Режим генерации ПАР: "none" | "v1_plain" | "v2_pair" | "v3_partial" | "v4_hybrid_net"
+# Управляется переменной окружения ORBIT_MCTS_MODE (по умолчанию v1_plain).
+MCTS_MODE = _os.environ.get("ORBIT_MCTS_MODE", "v1_plain")
+
+# Глобальная модель противника (живёт между ходами одного матча).
+# Инициализируется лениво при первом вызове _agent_impl.
+_opponent_model   = None
+_pending_partials = None   # для v3: список PartialAction в полёте
+
+# ── Байесовский предсказатель поведения противника ───────────────────────
+# Включается флагом USE_OPPONENT_PREDICTION.
+# Добавляет виртуальные флоты противника в state_raw перед project_state,
+# что заставляет swarm_plan учитывать ожидаемые атаки при планировании.
+try:
+    import opponent_model_bayesian as _opp_bayes_mod
+    from opponent_model_bayesian import OpponentModelBayesian
+    from opponent_presets import PRESETS
+    _BAYES_AVAILABLE = True
+except ImportError:
+    _BAYES_AVAILABLE = False
+    _opp_bayes_mod   = None
+
+USE_OPPONENT_PREDICTION = True   # выключить → False
+BAYES_THRESHOLD         = 0.05   # минимальный вес пресета для добавления флота
+_VIRTUAL_FLEET_ID_BASE  = -1000  # начало диапазона ID виртуальных флотов
+
+# Состояние между ходами (для детекции новых флотов противника)
+_bayes_model    = None   # OpponentModelBayesian
+_prev_fleet_ids = None   # set[int] — fleet IDs на конец предыдущего хода
+_prev_state_raw = None   # GameState — raw state предыдущего хода (для update)
 
 # ── AgentSwarm switch ─────────────────────────────────────────────────
 # True  → планы строим через swarm_plan (per-planet auction + redistribute)
@@ -369,21 +421,264 @@ def _execute_plan_atomically(state, plan, committed):
     return moves, 'ok'
 
 
+def _build_virtual_fleets(expected_actions, state_raw, opp_id: int) -> list:
+    """Создать список виртуальных Fleet-объектов из предсказанных действий.
+
+    Угол вычисляется как atan2(tgt - src) — простое приближение, достаточное
+    для project_state (точный aim_hybrid здесь избыточен и дорог).
+    Виртуальные флоты получают отрицательные ID чтобы не конфликтовать
+    с реальными.
+    """
+    import math as _m
+    from shooting import Fleet as _Fleet
+    planets_by_id = {p.id: p for p in state_raw.planets}
+    virtual = []
+    vid = _VIRTUAL_FLEET_ID_BASE
+    for a in expected_actions:
+        src = planets_by_id.get(a['from_id'])
+        tgt = planets_by_id.get(a['target_id'])
+        if src is None or tgt is None:
+            continue
+        angle = _m.atan2(tgt.y - src.y, tgt.x - src.x)
+        virtual.append(_Fleet(
+            id=vid,
+            owner=opp_id,
+            x=float(src.x),
+            y=float(src.y),
+            angle=angle,
+            from_planet_id=src.id,
+            ships=max(1, int(a['ships'])),
+        ))
+        vid -= 1
+    return virtual
+
+
+def _extract_new_opp_fleets(state_raw, prev_fleet_ids: set,
+                             opp_id: int,
+                             planets_by_id: dict) -> list:
+    """Найти флоты противника запущенные в прошлый ход.
+
+    Новый флот = fleet.owner == opp_id AND fleet.id не был в prev_fleet_ids.
+    Для каждого нового флота вычисляем (from_id, target_id) через
+    simulate_fleet_target, затем определяем action_type.
+    """
+    from projection import simulate_fleet_target as _sft, NEUTRAL_OWNER as _NO
+    new_fleets = [
+        f for f in state_raw.fleets
+        if f.owner == opp_id and f.id not in prev_fleet_ids
+    ]
+    actions = []
+    for f in new_fleets:
+        tgt_id, _ = _sft(f, state_raw.planets, state_raw.omega)
+        if tgt_id is None:
+            continue
+        tgt = planets_by_id.get(tgt_id)
+        if tgt is None:
+            continue
+        if tgt.owner == opp_id:
+            atype = 'reinforce'
+        elif tgt.owner == _NO:
+            atype = 'capture_neutral'
+        else:
+            atype = 'attack_enemy'
+        actions.append({
+            'from_id':     getattr(f, 'from_planet_id', -1),
+            'target_id':   tgt_id,
+            'ships':       int(f.ships),
+            'action_type': atype,
+        })
+    return actions
+
+
 def _agent_impl(obs, deadline=None):
     player    = obs.get('player', 0)
     state_raw = GameState.from_kaggle_obs(obs)
 
-    # 0. Проекция: резолвим все летящие флоты (свои и чужие).
-    #    После этого state.planets — состояние на момент последнего события.
-    #    player передаётся, чтобы projection знал чьи кометы «отскакивают»
-    #    обратно на ближайшую нашу планету (см. project_state docstring).
-    state = project_state(state_raw, horizon=PROJECTION_HORIZON, player=player)
-
+    # _step нужен и байесу (step=) и MCTS-логу, поэтому извлекаем сразу.
     _step = (obs.get('step') if isinstance(obs.get('step'), int) else
              obs.get('stepNumber') if isinstance(obs.get('stepNumber'), int) else
              getattr(state_raw, 'step', -1))
+
+    # ── Байесовский предсказатель (обновление + добавление виртуальных флотов) ──
+    global _bayes_model, _prev_fleet_ids, _prev_state_raw
+    state_for_projection = state_raw   # может быть заменено расширенным
+
+    if USE_OPPONENT_PREDICTION and _BAYES_AVAILABLE:
+        try:
+            opp_id = (player + 1) % max(2, getattr(state_raw, 'n_players', 2))
+            planets_by_id = {p.id: p for p in state_raw.planets}
+
+            # Включаем аналитику если включён debug-лог (zero-cost в бою)
+            if _opp_bayes_mod is not None:
+                _opp_bayes_mod.ANALYTICS_MODE = _dbg.enabled()
+
+            # Ленивая инициализация
+            if _bayes_model is None:
+                _bayes_model = OpponentModelBayesian()
+
+            # Шаг 1: обновить модель по реально наблюдённым флотам противника
+            if _prev_fleet_ids is not None and _prev_state_raw is not None:
+                observed = _extract_new_opp_fleets(
+                    state_raw, _prev_fleet_ids, opp_id, planets_by_id
+                )
+                metrics = _bayes_model.update(
+                    observed, _prev_state_raw, opp_id, step=_step
+                )
+                # Логируем аналитику если включена (metrics != None только при ANALYTICS_MODE)
+                if metrics is not None and _dbg.enabled():
+                    try:
+                        _dbg._w(
+                            f'[BAYES/update]  step={metrics["step"]}'
+                            f'  surprise={metrics["surprise"]:.3f}'
+                            f'  entropy={metrics["entropy"]:.3f}'
+                            f'  top={metrics["top_preset"]}({metrics["top_prob"]:.2f})'
+                            f'  obs={metrics["n_opponent_actions"]}'
+                            f'  matched={metrics["match_count"]}'
+                        )
+                    except Exception:
+                        pass
+
+            # Шаг 2: получить предсказанные действия и создать виртуальные флоты
+            expected = _bayes_model.get_expected_actions(
+                state_raw, opp_id, threshold=BAYES_THRESHOLD
+            )
+            if expected:
+                virtual = _build_virtual_fleets(expected, state_raw, opp_id)
+                if virtual:
+                    augmented_fleets = list(state_raw.fleets) + virtual
+                    from orbit_sim import GameState as _GS
+                    state_for_projection = _GS(
+                        planets=list(state_raw.planets),
+                        fleets=augmented_fleets,
+                        omega=state_raw.omega,
+                        step=state_raw.step,
+                        initial_planets=list(state_raw._initial_planets.values()),
+                        n_players=getattr(state_raw, 'n_players', 2),
+                        comet_ids=set(getattr(state_raw, 'comet_ids', set()) or set()),
+                    )
+            if _dbg.enabled():
+                try:
+                    _dbg._w(
+                        f'[BAYES/predict]  top={_bayes_model.top_preset()}'
+                        f'  expected={len(expected)}'
+                        f'  virtual={len(virtual) if expected else 0}'
+                        f'  dist={_bayes_model.summary()}'
+                    )
+                except Exception:
+                    pass
+
+        except Exception as _bayes_err:
+            try: _dbg.log_error('bayes', _bayes_err)
+            except Exception: pass
+
+    # 0. Проекция: резолвим все летящие флоты (свои и чужие + виртуальные).
+    #    После этого state.planets — состояние на момент последнего события.
+    #    player передаётся, чтобы projection знал чьи кометы «отскакивают»
+    #    обратно на ближайшую нашу планету (см. project_state docstring).
+    state = project_state(state_for_projection, horizon=PROJECTION_HORIZON, player=player)
+
     _dbg.begin_turn(_step, player, len(state.planets), len(state.fleets))
     _dbg.log_fleets(state.fleets, player)
+
+    # ── 0.5. MCTS (ранняя игра) ───────────────────────────────────────────────
+    # Условие включения: USE_MCTS, модуль доступен, ранняя фаза, карта небольшая.
+    # При успехе — возвращаем ходы прямо из MCTS, минуя весь основной пайплайн.
+    # При любой ошибке — молча падаем сквозь в обычную логику (fail-safe).
+    global _opponent_model, _pending_partials
+    if (USE_MCTS and _MCTS_AVAILABLE and MCTS_MODE != "none"
+            and _step >= 0 and _step < EARLY_GAME_SWITCH
+            and len(state.planets) <= EARLY_MAX_PLANETS):
+        try:
+            import time as _time_mcts
+            # Ленивая инициализация модели противника (сбрасывается при старте матча)
+            if _opponent_model is None:
+                _opponent_model = OpponentModel()
+
+            # Генерируем ПАР согласно MCTS_MODE
+            opp_id = (player + 1) % max(2, getattr(state, 'n_players', 2))
+
+            if MCTS_MODE == "v2_pair":
+                try:
+                    from action_space_v2 import generate_actions_v2
+                    my_actions = generate_actions_v2(state, player)
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            elif MCTS_MODE == "v3_partial":
+                try:
+                    from action_space_v3 import generate_actions_v3, PartialAction
+                    my_actions = generate_actions_v3(
+                        state, player,
+                        pending_partials=_pending_partials or [],
+                    )
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            elif MCTS_MODE == "v4_hybrid_net":
+                try:
+                    from action_space_v4 import generate_actions_v4
+                    my_actions = generate_actions_v4(state, player)
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            else:  # v1_plain (default)
+                my_actions = generate_actions(state, player)
+
+            opp_actions = generate_opponent_actions(state, opp_id)
+
+            # Бюджет времени: доля от остатка до дедлайна
+            if deadline is not None:
+                remaining   = deadline - _time_mcts.perf_counter()
+                mcts_budget = max(0.05, remaining * MCTS_TIME_FRACTION)
+            else:
+                mcts_budget = 0.35
+
+            if _dbg.enabled():
+                try:
+                    import agent_debug as _d
+                    _d._w(f'[MCTS/{MCTS_MODE}]  step={_step}'
+                          f'  my_actions={len(my_actions)}'
+                          f'  opp_actions={len(opp_actions)}'
+                          f'  budget={mcts_budget:.3f}s')
+                except Exception:
+                    pass
+
+            best_action = run_mcts(
+                state, my_actions, opp_actions,
+                _opponent_model, player,
+                time_budget=mcts_budget,
+            )
+
+            if best_action is not None:
+                if _dbg.enabled():
+                    try:
+                        import agent_debug as _d
+                        _d._w(f'[MCTS/{MCTS_MODE}]  best={best_action}')
+                    except Exception:
+                        pass
+                # v3: track PartialAction for second wave next turn
+                if MCTS_MODE == "v3_partial":
+                    try:
+                        from action_space_v3 import PartialAction as _PA
+                        if isinstance(best_action, _PA):
+                            if _pending_partials is None:
+                                _pending_partials = []
+                            _pending_partials.append(best_action)
+                    except Exception:
+                        pass
+                _dbg.end_turn()
+                return best_action.to_moves()
+            # Если MCTS не нашёл хода — продолжаем в обычный пайплайн
+            if _dbg.enabled():
+                try:
+                    import agent_debug as _d
+                    _d._w(f'[MCTS/{MCTS_MODE}]  no action found, falling back')
+                except Exception:
+                    pass
+        except Exception as _mcts_err:
+            try: _dbg.log_error('mcts', _mcts_err)
+            except Exception: pass
+            # Любая ошибка → продолжаем в обычный пайплайн
 
     # Game Understanding Layer — глобальное «понимание» текущего хода.
     # Пока просто логируем для проверки; интегрировать в scoring — следующий шаг.
@@ -558,6 +853,31 @@ def _agent_impl(obs, deadline=None):
 
     _dbg.log_moves(moves)
     _dbg.end_turn()
+
+    # ── Сохраняем state для байесовского обновления на следующем ходу ─────
+    if USE_OPPONENT_PREDICTION and _BAYES_AVAILABLE:
+        try:
+            _prev_fleet_ids = {f.id for f in state_raw.fleets}
+            _prev_state_raw = state_raw
+        except Exception:
+            pass
+
+    # ── Дамп аналитики байеса в конце матча ──────────────────────────────
+    # Только в debug-режиме. Kaggle-бои: _dbg.enabled() == False → пропуск.
+    if (_dbg.enabled() and _BAYES_AVAILABLE
+            and _bayes_model is not None
+            and _bayes_model.analytics_history):
+        try:
+            is_last = (_step >= 498)   # kaggle матч обычно 500 ходов
+            if is_last:
+                import json as _json
+                history = _bayes_model.dump_analytics()
+                _dbg._w(f'[BAYES/dump]  turns={len(history)}')
+                for rec in history:
+                    _dbg._w('[BAYES/H] ' + _json.dumps(rec, separators=(',', ':')))
+        except Exception:
+            pass
+
     return moves
 
 
