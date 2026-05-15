@@ -114,6 +114,21 @@ THR_LO = -0.5
 SCARCITY_K       = 5.0   # сила буста (тюнить от 1 до 5)
 EARLY_PHASE_THR  = 0.2   # фаза после которой буст = 0 (0.3 × 500 = step 150)
 
+# ── Priority-override для периферии ───────────────────────────────────────
+# Проблема: zone label и priority score вычисляются независимо.
+# Планета может иметь высокий priority (хорошая по совокупности фич),
+# но попасть в 'periphery' или 'hard_far' — catch-all зоны, которые
+# исключены из TARGET_ZONES в agent.py → никогда не попадёт в аукцион.
+#
+# Решение: post-pass после расчёта обоих. Если нецелевая планета имеет
+# priority ≥ PRIO_RECLASSIFY_THR — переклассифицируем её в 'priority_target'.
+# Это делает zone и priority согласованными: высокий score = попадает в торги.
+#
+# Порог: priority на z-score шкале, обычно ∈ [-3, +3] для целей.
+# 0.8 ≈ top-20% среди всех целей на карте. Тюнить от 0.5 до 1.5.
+PRIO_RECLASSIFY_THR = 0.8   # планеты выше → force-upgrading до priority_target
+PRIO_RECLASSIFY_ZONES = frozenset({'periphery', 'hard_far'})  # какие зоны апгрейдим
+
 ZONE_COLORS = {
     'frontline':       '#e05c3a',
     'contested':       '#f0b04a',
@@ -207,6 +222,19 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0,
             return 'periphery'
 
     out['zone'] = [label(i) for i in out.index]
+
+    # ── Priority-override post-pass ────────────────────────────────────────
+    # Переклассифицируем 'periphery'/'hard_far' с высоким priority в
+    # 'priority_target', чтобы они попали в аукцион через TARGET_ZONES.
+    # Применяется ТОЛЬКО к нецелевым (не наши) планетам.
+    reclassify_mask = (
+        is_tgt
+        & out['zone'].isin(PRIO_RECLASSIFY_ZONES)
+        & (out['priority'] >= PRIO_RECLASSIFY_THR)
+    )
+    if reclassify_mask.any():
+        out.loc[reclassify_mask, 'zone'] = 'priority_target'
+
     return out, Z
 
 
@@ -333,6 +361,7 @@ def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_R
 __all__ = [
     'ZONE_FEATURES', 'W_OURS', 'W_TARGETS', 'THR_HI', 'THR_LO', 'ZONE_COLORS',
     'SCARCITY_K', 'EARLY_PHASE_THR',
+    'PRIO_RECLASSIFY_THR', 'PRIO_RECLASSIFY_ZONES',
     'APPROACH_LOOKAHEAD', 'APPROACH_SAMPLE', '_approach_dist',
     'compute_zones', 'compute_zones_from_state',
 ]
