@@ -71,7 +71,12 @@ def run_match(task):
     elif opp_name == 'noop':
         opp_fn  = lambda obs, cfg=None: []
     else:
-        raise ValueError(f"unknown opp: {opp_name}")
+        # произвольный файл — ищем HERE/<opp_name>.py
+        opp_path = os.path.join(HERE, f"{opp_name}.py")
+        if not os.path.exists(opp_path):
+            raise ValueError(f"unknown opp '{opp_name}': файл не найден: {opp_path}")
+        opp_mod = _load(opp_path, f"_opp_{uid}")
+        opp_fn  = opp_mod.agent
 
     # ── матч ───────────────────────────────────────────────────────────
     from kaggle_environments import make

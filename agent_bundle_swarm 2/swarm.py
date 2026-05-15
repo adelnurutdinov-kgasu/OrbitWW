@@ -149,7 +149,7 @@ class SwarmWeights:
     # с 9 кораблями — гарнизон встроен. Плюс: больше кораблей = быстрее летим
     # (fleet_speed_correct зависит от кол-ва), захват приходит раньше.
     # 0 = старое поведение (минимум). Хорошее стартовое значение: 5-10.
-    neutral_garrison: int = 5
+    neutral_garrison: int = 0
 
     # ── Проактивный гарнизон frontline/contested (для redistribute) ───────
     # Когда transfer не привязан к конкретному unfunded-плану (нет «события»),
@@ -164,7 +164,21 @@ class SwarmWeights:
     # 0.0 = старое поведение (только unfunded-дефицит).
     # Хорошее стартовое значение: 5–10.
     # Применяется ТОЛЬКО к зонам frontline и contested; rear/bastion не трогаем.
-    garrison_per_prod: float = 7.0
+    garrison_per_prod: float = 0.0
+
+    # ── Priority-reclassify порог (для zones.py post-pass) ────────────────
+    # prio_reclassify_thr      — порог в начале матча (step=0).
+    # prio_reclassify_thr_late — порог в конце матча (step=TOTAL_STEPS).
+    # agent.py линейно интерполирует между ними по фазе → stage-aware тюнинг.
+    #
+    # Если оба одинаковые (дефолт) — статичный порог, нет интерполяции.
+    # Пример stage-aware: thr=0.4 (агрессивная ранняя экспансия) →
+    #                      thr_late=1.5 (осторожно в поздней игре).
+    #
+    # 99.0 = фактически выключить override (никакая periphery не апгрейдится).
+    # Тюнинговый диапазон: 0.4 … 1.8.
+    prio_reclassify_thr:      float = 0.8
+    prio_reclassify_thr_late: float = 0.8   # = thr → нет интерполяции по дефолту
 
 
 DEFAULT_WEIGHTS = SwarmWeights()

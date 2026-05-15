@@ -152,7 +152,7 @@ def _zscore(s):
 
 
 def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0,
-                  our_total_prod=0.0):
+                  our_total_prod=0.0, prio_reclassify_thr=None):
     """
     Принимает DataFrame с колонками ZONE_FEATURES + 'owner' + 'pid'.
     Возвращает (df_extended, Z_scores).
@@ -164,6 +164,10 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0,
 
     `our_total_prod` — суммарный прод НАШИХ планет на текущий ход. Используется
     для production-scarcity: чем меньше наш прод, тем сильнее буст на rich-цели.
+
+    `prio_reclassify_thr` — порог priority-override post-pass: планеты из
+    PRIO_RECLASSIFY_ZONES с priority ≥ thr → 'priority_target'. Если None —
+    используется модульная константа PRIO_RECLASSIFY_THR.
     """
     out = df.copy()
     Z = pd.DataFrame({m: _zscore(out[m]) for m in ZONE_FEATURES}, index=out.index)
@@ -227,10 +231,12 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0,
     # Переклассифицируем 'periphery'/'hard_far' с высоким priority в
     # 'priority_target', чтобы они попали в аукцион через TARGET_ZONES.
     # Применяется ТОЛЬКО к нецелевым (не наши) планетам.
+    # Порог: prio_reclassify_thr (параметр) > PRIO_RECLASSIFY_THR (модульный дефолт).
+    _thr = PRIO_RECLASSIFY_THR if prio_reclassify_thr is None else float(prio_reclassify_thr)
     reclassify_mask = (
         is_tgt
         & out['zone'].isin(PRIO_RECLASSIFY_ZONES)
-        & (out['priority'] >= PRIO_RECLASSIFY_THR)
+        & (out['priority'] >= _thr)
     )
     if reclassify_mask.any():
         out.loc[reclassify_mask, 'zone'] = 'priority_target'
@@ -324,7 +330,7 @@ def _planet_zone_features(state, p, player, horizon, ships_ref, comet_ids=None, 
 
 def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_REF,
                               w_ours=W_OURS, w_targets=W_TARGETS, step=None,
-                              our_total_prod=None):
+                              our_total_prod=None, prio_reclassify_thr=None):
     """
     Вход: GameState, player id.
     Выход: (df_with_zones, Z_scores) — готово для агента без тяжёлых вычислений.
@@ -335,6 +341,10 @@ def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_R
     `our_total_prod` — суммарный прод наших планет. Если None — вычисляется
     автоматически из state.planets. Используется для production-scarcity boost
     в ранней игре: усиливает приоритет high-prod целей когда наш прод мал.
+
+    `prio_reclassify_thr` — порог priority-override (periphery/hard_far → priority_target).
+    Если None — используется PRIO_RECLASSIFY_THR. agent.py передаёт сюда stage-aware
+    значение интерполированное между prio_reclassify_thr и prio_reclassify_thr_late.
 
     Кометы (`state.comet_ids`) ОСОЗНАННО игнорируются:
       • не попадают в df (значит не выбираются как цели через TARGET_ZONES);
@@ -355,7 +365,8 @@ def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_R
             for p in state.planets if p.id not in comet_ids]
     df = pd.DataFrame(rows)
     return compute_zones(df, w_ours=w_ours, w_targets=w_targets,
-                         player=player, step=step, our_total_prod=our_total_prod)
+                         player=player, step=step, our_total_prod=our_total_prod,
+                         prio_reclassify_thr=prio_reclassify_thr)
 
 
 __all__ = [

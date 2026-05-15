@@ -28,9 +28,9 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 
 from orbit_sim import GameState
 from projection import project_state, PROJECTION_HORIZON, NEUTRAL_OWNER
-from zones import compute_zones_from_state
+from zones import compute_zones_from_state, PRIO_RECLASSIFY_THR as _PRIO_RECLASSIFY_THR_DEFAULT
 from attacks import best_attacks, all_plans, ATTACK_HORIZON
-from shooting import aim_hybrid, simulate_launch, segment_hits_sun
+from shooting import aim_hybrid, simulate_launch, segment_hits_sun, TOTAL_STEPS as _TOTAL_STEPS
 from force import _rendezvous_eta
 from swarm import swarm_plan, DEFAULT_WEIGHTS
 from context import compute_context, context_summary
@@ -789,9 +789,21 @@ def _agent_impl(obs, deadline=None):
     our_total_prod = sum(
         float(p.production) for p in _raw_pl_early if p.owner == player
     )
+    # Вычисляем stage-aware порог priority-reclassify: линейная интерполяция
+    # от prio_reclassify_thr (step=0) до prio_reclassify_thr_late (step=TOTAL).
+    # Если оба одинаковые (дефолт) — статичный порог, интерполяции нет.
+    # Читаем из SWARM_WEIGHTS напрямую: _adapt_swarm_weights не трогает эти поля.
+    _prio_thr_early = float(getattr(SWARM_WEIGHTS, 'prio_reclassify_thr',
+                                    _PRIO_RECLASSIFY_THR_DEFAULT))
+    _prio_thr_late  = float(getattr(SWARM_WEIGHTS, 'prio_reclassify_thr_late',
+                                    _prio_thr_early))
+    _phase_prio     = min(1.0, max(0.0, float(_step) / float(_TOTAL_STEPS))) if _step >= 0 else 0.0
+    _eff_prio_thr   = _prio_thr_early + (_prio_thr_late - _prio_thr_early) * _phase_prio
+
     try:
         df, _ = compute_zones_from_state(state, player=player,
-                                         our_total_prod=our_total_prod)
+                                         our_total_prod=our_total_prod,
+                                         prio_reclassify_thr=_eff_prio_thr)
     except Exception as e:
         _dbg.log_error('compute_zones_from_state', e)
         _dbg.end_turn()
