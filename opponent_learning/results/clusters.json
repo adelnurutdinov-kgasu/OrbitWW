@@ -1,0 +1,137 @@
+[
+  {
+    "id": 0,
+    "name": "c0_hoarder",
+    "prior": 0.053315994798439535,
+    "centroid": {
+      "attack_rate": 0.25975980966054657,
+      "expansion_bias": 0.23534865518277606,
+      "ships_fraction": 0.304256981611436,
+      "avg_distance_frac": 0.32618719418547165,
+      "overkill_ratio": 8.07810185868779,
+      "early_rate": 0.2675305860469991,
+      "late_rate": 0.22240863482748685,
+      "multi_launch_rate": 0.27961638565969205,
+      "idle_peak_frac": 0.6213931660500331
+    },
+    "weights": {
+      "activity_weight": 1.64,
+      "idle_floor": 31,
+      "distance_comfort": 0.2,
+      "risk_tolerance": 2,
+      "prio_reclassify_thr": 1.24,
+      "priority_bonus": 1.32,
+      "ships_weight": 4.48
+    },
+    "description": "hoards ships=0.62, wasteful=8.1x",
+    "n_samples": 82
+  },
+  {
+    "id": 1,
+    "name": "c1_balanced",
+    "prior": 0.3706111833550065,
+    "centroid": {
+      "attack_rate": 0.2859685768815993,
+      "expansion_bias": 0.29795153905197447,
+      "ships_fraction": 0.2768212185141284,
+      "avg_distance_frac": 0.37474253713266736,
+      "overkill_ratio": 2.398324549934222,
+      "early_rate": 0.3872567122055064,
+      "late_rate": 0.20695846659147132,
+      "multi_launch_rate": 0.29121710143024937,
+      "idle_peak_frac": 0.3181277335269773
+    },
+    "weights": {
+      "activity_weight": 1.84,
+      "idle_floor": 26,
+      "distance_comfort": 0.22,
+      "risk_tolerance": 2,
+      "prio_reclassify_thr": 1.17,
+      "priority_bonus": 1.54,
+      "ships_weight": 4.62
+    },
+    "description": "wasteful=2.4x",
+    "n_samples": 570
+  },
+  {
+    "id": 2,
+    "name": "c2_turtle",
+    "prior": 0.14759427828348504,
+    "centroid": {
+      "attack_rate": 0.09817391955939658,
+      "expansion_bias": 0.5704471114013485,
+      "ships_fraction": 0.4697405875937427,
+      "avg_distance_frac": 0.37092582149514897,
+      "overkill_ratio": 1.9904585123582272,
+      "early_rate": 0.171206949277639,
+      "late_rate": 0.04834351315429081,
+      "multi_launch_rate": 0.143965874715242,
+      "idle_peak_frac": 0.19716255213138206
+    },
+    "weights": {
+      "activity_weight": 0.8,
+      "idle_floor": 18,
+      "distance_comfort": 0.22,
+      "risk_tolerance": 1,
+      "prio_reclassify_thr": 0.87,
+      "priority_bonus": 2.5,
+      "ships_weight": 3.65
+    },
+    "description": "expands neutrals=0.57, wasteful=2.0x",
+    "n_samples": 227
+  },
+  {
+    "id": 3,
+    "name": "c3_rusher",
+    "prior": 0.2340702210663199,
+    "centroid": {
+      "attack_rate": 0.6756060538210283,
+      "expansion_bias": 0.2668045949197529,
+      "ships_fraction": 0.21020787749589898,
+      "avg_distance_frac": 0.36485551481247797,
+      "overkill_ratio": 2.4951529848510594,
+      "early_rate": 0.6301488756713257,
+      "late_rate": 0.738871097893548,
+      "multi_launch_rate": 0.6094122430385998,
+      "idle_peak_frac": 0.6373886901778499
+    },
+    "weights": {
+      "activity_weight": 4.13,
+      "idle_floor": 34,
+      "distance_comfort": 0.22,
+      "risk_tolerance": 2,
+      "prio_reclassify_thr": 1.21,
+      "priority_bonus": 1.43,
+      "ships_weight": 4.95
+    },
+    "description": "active=0.68, hoards ships=0.64, wasteful=2.5x",
+    "n_samples": 360
+  },
+  {
+    "id": 4,
+    "name": "c4_hoarder",
+    "prior": 0.19440832249674903,
+    "centroid": {
+      "attack_rate": 0.4489410455590482,
+      "expansion_bias": 0.3155492305477726,
+      "ships_fraction": 0.18212180582142345,
+      "avg_distance_frac": 0.37921448745835,
+      "overkill_ratio": 3.3295943110539885,
+      "early_rate": 0.4012854748932187,
+      "late_rate": 0.49613497322097794,
+      "multi_launch_rate": 0.4226171726065864,
+      "idle_peak_frac": 0.8586073924793127
+    },
+    "weights": {
+      "activity_weight": 2.7,
+      "idle_floor": 40,
+      "distance_comfort": 0.23,
+      "risk_tolerance": 2,
+      "prio_reclassify_thr": 1.15,
+      "priority_bonus": 1.6,
+      "ships_weight": 5.09
+    },
+    "description": "hoards ships=0.86, wasteful=3.3x",
+    "n_samples": 299
+  }
+]

@@ -1,2 +1,10 @@
 .ipynb_checkpoints/mcts_early_game_bench-checkpoint.ipynb
 mcts_early_game_bench.ipynb
+tuning/results/tune_4p_sweep3_20260516_020655.csv
+tuning/results/tune_4p_sweep2_20260516_010910.csv
+tuning/results/tune_4p_20260516_001225.csv
+opponent_learning/data/processed/features_clustered.csv
+opponent_learning/results/launch_clusters.csv
+opponent_learning/data/processed/launches.csv
+opponent_learning/data/processed/features.csv
+opponent_learning/data/processed/steps.csv

@@ -1,0 +1,254 @@
+========================================================================
+LAUNCH BEHAVIORAL ARCHETYPES  —  08_cluster_launches.py
+========================================================================
+
+Clustering on relative-choice + zone-value features.
+Key: rel_X = chosen_X - mean(available_X)  (signed, clipped at 1/99 pct)
+
+
+════════════════════════════════════════════════════════════════════════
+  NEUTRAL LAUNCHES   k=5   silhouette=0.1468
+════════════════════════════════════════════════════════════════════════
+
+  Cluster 0  [far+low-prod+high-cost+unripe+shallow+ignores-priority]  n=8,485  (21.2%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=-0.284  rel_ships=+7.13  rel_dist=+0.319
+    rel_ripeness=-0.0603  rel_wnn=-0.0059  rel_late_agg=-3.6609
+  Boolean rates:
+    chose_cheapest=0.036  chose_richest_prod=0.210
+    chose_best_ripeness=0.001  chose_best_wnn=0.076
+  Target:
+    dist_frac=0.466  deepness=0.502  overkill=0.73
+    priority_rank=15.5  n_better_alts=14.5
+  Context:
+    phase=0.24  own_ship_ratio=0.139  own_planet_ratio=0.195
+  Target zones: periphery=68%  priority_target=18%  hard_far=13%  easy_target=1%
+
+  Cluster 1  [far+low-prod+low-cost+ripe+deep+cheapest+richest+best-zone+best-ripe]  n=971  (2.4%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=-0.150  rel_ships=-12.25  rel_dist=+0.189
+    rel_ripeness=+0.0932  rel_wnn=-0.0017  rel_late_agg=+5.0211
+  Boolean rates:
+    chose_cheapest=0.877  chose_richest_prod=0.597
+    chose_best_ripeness=0.831  chose_best_wnn=0.212
+  Target:
+    dist_frac=0.390  deepness=0.461  overkill=16.27
+    priority_rank=4.5  n_better_alts=3.5
+  Context:
+    phase=0.56  own_ship_ratio=0.435  own_planet_ratio=0.441
+  Target zones: periphery=70%  easy_target=25%  priority_target=5%  hard_far=0%
+
+  Cluster 2  [far+high-prod+deep+cheapest+richest+best-ripe]  n=17,123  (42.8%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.201  rel_ships=+0.54  rel_dist=+0.300
+    rel_ripeness=+0.0051  rel_wnn=-0.0602  rel_late_agg=+0.7565
+  Boolean rates:
+    chose_cheapest=0.356  chose_richest_prod=0.665
+    chose_best_ripeness=0.366  chose_best_wnn=0.128
+  Target:
+    dist_frac=0.514  deepness=0.582  overkill=0.90
+    priority_rank=7.3  n_better_alts=6.3
+  Context:
+    phase=0.55  own_ship_ratio=0.386  own_planet_ratio=0.447
+  Target zones: periphery=56%  priority_target=21%  hard_far=14%  easy_target=9%
+
+  Cluster 3  [far+high-prod+good-neighborhood+shallow+cheapest+richest+best-zone+best-ripe]  n=11,642  (29.1%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.524  rel_ships=-3.96  rel_dist=+0.087
+    rel_ripeness=+0.0301  rel_wnn=+0.1567  rel_late_agg=-0.9421
+  Boolean rates:
+    chose_cheapest=0.267  chose_richest_prod=0.523
+    chose_best_ripeness=0.344  chose_best_wnn=0.321
+  Target:
+    dist_frac=0.239  deepness=0.315  overkill=1.07
+    priority_rank=4.1  n_better_alts=3.1
+  Context:
+    phase=0.25  own_ship_ratio=0.136  own_planet_ratio=0.191
+  Target zones: periphery=50%  priority_target=38%  hard_far=11%  easy_target=1%
+
+  Cluster 4  [far+high-prod+low-cost+ripe+deep+cheapest+richest+best-ripe]  n=1,834  (4.6%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+1.308  rel_ships=-19.10  rel_dist=+0.238
+    rel_ripeness=+0.3050  rel_wnn=+0.0169  rel_late_agg=+14.9891
+  Boolean rates:
+    chose_cheapest=0.680  chose_richest_prod=0.659
+    chose_best_ripeness=0.881  chose_best_wnn=0.067
+  Target:
+    dist_frac=0.379  deepness=0.466  overkill=2.43
+    priority_rank=5.2  n_better_alts=4.2
+  Context:
+    phase=0.20  own_ship_ratio=0.143  own_planet_ratio=0.192
+  Target zones: priority_target=66%  periphery=27%  easy_target=7%  hard_far=0%
+
+════════════════════════════════════════════════════════════════════════
+  ENEMY LAUNCHES   k=6   silhouette=0.1338
+════════════════════════════════════════════════════════════════════════
+
+  Cluster 0  [far+high-prod+high-cost+unripe+shallow+richest+ignores-priority]  n=36,749  (33.2%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.248  rel_ships=+23.50  rel_dist=+0.292
+    rel_ripeness=-0.0957  rel_wnn=+0.0132  rel_late_agg=-6.2587
+  Boolean rates:
+    chose_cheapest=0.004  chose_richest_prod=0.310
+    chose_best_ripeness=0.002  chose_best_wnn=0.081
+  Target:
+    dist_frac=0.531  deepness=0.577  overkill=0.97
+    priority_rank=16.4  n_better_alts=15.4
+  Context:
+    phase=0.46  own_ship_ratio=0.252  own_planet_ratio=0.287
+  Target zones: priority_target=48%  periphery=41%  hard_far=11%  easy_target=0%
+
+  Cluster 1  [far+low-prod+low-cost+ripe+good-neighborhood+deep+cheapest+best-ripe]  n=3,567  (3.2%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=-0.337  rel_ships=-42.98  rel_dist=+0.167
+    rel_ripeness=+0.3080  rel_wnn=+0.0350  rel_late_agg=+18.1117
+  Boolean rates:
+    chose_cheapest=0.687  chose_richest_prod=0.187
+    chose_best_ripeness=0.540  chose_best_wnn=0.160
+  Target:
+    dist_frac=0.387  deepness=0.502  overkill=28.24
+    priority_rank=7.3  n_better_alts=6.3
+  Context:
+    phase=0.58  own_ship_ratio=0.378  own_planet_ratio=0.378
+  Target zones: periphery=60%  priority_target=29%  easy_target=10%
+
+  Cluster 2  [far+high-prod+low-cost+ripe+good-neighborhood+deep+cheapest+richest+best-ripe]  n=13,001  (11.7%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.534  rel_ships=-30.22  rel_dist=+0.195
+    rel_ripeness=+0.3009  rel_wnn=+0.0327  rel_late_agg=+18.7409
+  Boolean rates:
+    chose_cheapest=0.417  chose_richest_prod=0.407
+    chose_best_ripeness=0.552  chose_best_wnn=0.106
+  Target:
+    dist_frac=0.431  deepness=0.568  overkill=6.81
+    priority_rank=4.9  n_better_alts=3.9
+  Context:
+    phase=0.51  own_ship_ratio=0.346  own_planet_ratio=0.374
+  Target zones: priority_target=54%  periphery=41%  easy_target=4%
+
+  Cluster 3  [far+low-prod+low-cost+good-neighborhood+shallow+best-zone+ignores-priority]  n=25,852  (23.3%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=-0.136  rel_ships=-34.84  rel_dist=+0.113
+    rel_ripeness=+0.0187  rel_wnn=+0.1361  rel_late_agg=-1.5100
+  Boolean rates:
+    chose_cheapest=0.086  chose_richest_prod=0.207
+    chose_best_ripeness=0.055  chose_best_wnn=0.280
+  Target:
+    dist_frac=0.297  deepness=0.396  overkill=2.40
+    priority_rank=11.1  n_better_alts=10.1
+  Context:
+    phase=0.48  own_ship_ratio=0.182  own_planet_ratio=0.236
+  Target zones: periphery=59%  priority_target=39%  hard_far=1%  easy_target=0%
+
+  Cluster 4  [far+high-prod+good-neighborhood+shallow+richest]  n=26,094  (23.6%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.215  rel_ships=-2.48  rel_dist=+0.130
+    rel_ripeness=-0.0295  rel_wnn=+0.0245  rel_late_agg=-1.8647
+  Boolean rates:
+    chose_cheapest=0.123  chose_richest_prod=0.380
+    chose_best_ripeness=0.118  chose_best_wnn=0.194
+  Target:
+    dist_frac=0.403  deepness=0.590  overkill=1.72
+    priority_rank=7.1  n_better_alts=6.1
+  Context:
+    phase=0.69  own_ship_ratio=0.593  own_planet_ratio=0.607
+  Target zones: priority_target=41%  periphery=37%  easy_target=15%  hard_far=6%
+
+  Cluster 5  [far+high-prod+low-cost+good-neighborhood+shallow+richest+ignores-priority]  n=5,511  (5.0%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.321  rel_ships=-7.76  rel_dist=+0.159
+    rel_ripeness=-0.0118  rel_wnn=+0.0427  rel_late_agg=-1.4625
+  Boolean rates:
+    chose_cheapest=0.089  chose_richest_prod=0.368
+    chose_best_ripeness=0.106  chose_best_wnn=0.159
+  Target:
+    dist_frac=0.374  deepness=0.539  overkill=4.72
+    priority_rank=10.7  n_better_alts=9.7
+  Context:
+    phase=0.55  own_ship_ratio=0.358  own_planet_ratio=0.404
+  Target zones: priority_target=49%  periphery=40%  easy_target=6%  hard_far=6%
+
+════════════════════════════════════════════════════════════════════════
+  REINFORCE LAUNCHES   k=4   silhouette=0.5259
+════════════════════════════════════════════════════════════════════════
+
+  Cluster 0  [top-priority]  n=106,791  (89.1%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.000  rel_ships=+0.00  rel_dist=+0.000
+    rel_ripeness=+0.0000  rel_wnn=+0.0000  rel_late_agg=+0.0000
+  Boolean rates:
+    chose_cheapest=0.000  chose_richest_prod=0.000
+    chose_best_ripeness=0.000  chose_best_wnn=0.000
+  Target:
+    dist_frac=0.300  deepness=0.413  overkill=1.42
+    priority_rank=1.0  n_better_alts=0.0
+  Context:
+    phase=0.63  own_ship_ratio=0.484  own_planet_ratio=0.539
+  Target zones: isolated=46%  bastion=16%  rear=16%  mid=15%
+
+  Cluster 1  [top-priority]  n=3,929  (3.3%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.000  rel_ships=+0.00  rel_dist=+0.000
+    rel_ripeness=+0.0000  rel_wnn=+0.0000  rel_late_agg=+0.0000
+  Boolean rates:
+    chose_cheapest=0.000  chose_richest_prod=0.000
+    chose_best_ripeness=0.000  chose_best_wnn=0.000
+  Target:
+    dist_frac=0.311  deepness=0.439  overkill=25.75
+    priority_rank=1.0  n_better_alts=0.0
+  Context:
+    phase=0.68  own_ship_ratio=0.527  own_planet_ratio=0.595
+  Target zones: isolated=31%  rear=26%  mid=18%  frontline=12%
+
+  Cluster 2  [top-priority]  n=5,749  (4.8%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.000  rel_ships=+0.00  rel_dist=+0.000
+    rel_ripeness=+0.0000  rel_wnn=+0.0000  rel_late_agg=+0.0000
+  Boolean rates:
+    chose_cheapest=0.000  chose_richest_prod=0.000
+    chose_best_ripeness=0.000  chose_best_wnn=0.000
+  Target:
+    dist_frac=0.326  deepness=0.437  overkill=4.53
+    priority_rank=1.0  n_better_alts=0.0
+  Context:
+    phase=0.65  own_ship_ratio=0.557  own_planet_ratio=0.595
+  Target zones: isolated=36%  bastion=21%  rear=18%  mid=17%
+
+  Cluster 3  [top-priority]  n=3,416  (2.9%)
+  ─────────────────────────────────────────────────────────────────
+  Relative choice:
+    rel_prod=+0.000  rel_ships=+0.00  rel_dist=+0.000
+    rel_ripeness=+0.0000  rel_wnn=+0.0000  rel_late_agg=+0.0000
+  Boolean rates:
+    chose_cheapest=0.000  chose_richest_prod=0.000
+    chose_best_ripeness=0.000  chose_best_wnn=0.000
+  Target:
+    dist_frac=0.337  deepness=0.470  overkill=0.13
+    priority_rank=1.0  n_better_alts=0.0
+  Context:
+    phase=0.76  own_ship_ratio=0.729  own_planet_ratio=0.732
+  Target zones: bastion=33%  isolated=23%  rear=19%  frontline=12%
+
+========================================================================
+GLOBAL BASELINE (all launches):
+========================================================================
+  rel_prod: +0.1039
+  rel_ships: -2.6382
+  rel_dist: +0.1128
+  rel_ripeness: +0.0064
+  rel_wnn: +0.0229
+  rel_late_agg: -0.0525

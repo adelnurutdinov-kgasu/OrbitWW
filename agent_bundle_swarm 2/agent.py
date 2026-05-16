@@ -86,8 +86,21 @@ _prev_state_raw = None   # GameState — raw state предыдущего ход
 # ── AgentSwarm switch ─────────────────────────────────────────────────
 # True  → планы строим через swarm_plan (per-planet auction + redistribute)
 # False → старая глобальная логика best_attacks (fallback / A-B сравнение)
-USE_SWARM      = True
-SWARM_WEIGHTS  = DEFAULT_WEIGHTS
+USE_SWARM        = True
+SWARM_WEIGHTS    = DEFAULT_WEIGHTS   # веса для 2-player
+
+# Веса для 4-player FFA — оптимизированы отдельно (tune_4p_sweep1/2).
+# Отличия от 2-player:
+#   zone_urgency_weight=3.0  — сильнее гнать корабли rear→frontline (3 фронта)
+#   neutral_garrison=0       — ng_3 помогал vs 3x sub2 но не vs смешанного состава
+#
+# match_runner4.py переопределяет эти веса через task['weights4'].
+SWARM_WEIGHTS_4P = _dc.replace(DEFAULT_WEIGHTS,
+    zone_urgency_weight  = 4.0,   # sweep1-2: urg4 > urg3 в FFA
+    opp_strength_weight  = 0.5,   # sweep3: pure_osw0.5 лучший (rank=1.600 win=0.400)
+    # garrison=0, neutral_garrison=0 — дефолты DEFAULT_WEIGHTS (оптимальны и в FFA
+    # при наличии opp_strength: opp_bonus компенсирует нужду в гарнизоне)
+)
 
 TARGET_ZONES   = ('easy_target', 'priority_target')
 
@@ -558,9 +571,26 @@ def _extract_new_opp_fleets(state_raw, prev_fleet_ids: set,
     return actions
 
 
+def _count_players(state_raw):
+    """Считает число активных игроков из планет и флотов."""
+    owners = set()
+    for p in getattr(state_raw, 'planets', []):
+        if getattr(p, 'owner', -1) != -1:
+            owners.add(p.owner)
+    for f in getattr(state_raw, 'fleets', []):
+        owners.add(getattr(f, 'owner', -1))
+    owners.discard(-1)
+    return max(2, len(owners))
+
+
 def _agent_impl(obs, deadline=None):
     player    = obs.get('player', 0)
     state_raw = GameState.from_kaggle_obs(obs)
+
+    # Выбираем веса в зависимости от режима (2-player vs FFA)
+    _n_players      = _count_players(state_raw)
+    _is_ffa         = _n_players >= 4
+    _active_weights = SWARM_WEIGHTS_4P if _is_ffa else SWARM_WEIGHTS
 
     # _step нужен и байесу (step=) и MCTS-логу, поэтому извлекаем сразу.
     _step = (obs.get('step') if isinstance(obs.get('step'), int) else
@@ -792,10 +822,10 @@ def _agent_impl(obs, deadline=None):
     # Вычисляем stage-aware порог priority-reclassify: линейная интерполяция
     # от prio_reclassify_thr (step=0) до prio_reclassify_thr_late (step=TOTAL).
     # Если оба одинаковые (дефолт) — статичный порог, интерполяции нет.
-    # Читаем из SWARM_WEIGHTS напрямую: _adapt_swarm_weights не трогает эти поля.
-    _prio_thr_early = float(getattr(SWARM_WEIGHTS, 'prio_reclassify_thr',
+    # Читаем из активных весов (_active_weights = 2p или 4p в зависимости от режима).
+    _prio_thr_early = float(getattr(_active_weights, 'prio_reclassify_thr',
                                     _PRIO_RECLASSIFY_THR_DEFAULT))
-    _prio_thr_late  = float(getattr(SWARM_WEIGHTS, 'prio_reclassify_thr_late',
+    _prio_thr_late  = float(getattr(_active_weights, 'prio_reclassify_thr_late',
                                     _prio_thr_early))
     _phase_prio     = min(1.0, max(0.0, float(_step) / float(_TOTAL_STEPS))) if _step >= 0 else 0.0
     _eff_prio_thr   = _prio_thr_early + (_prio_thr_late - _prio_thr_early) * _phase_prio
@@ -913,7 +943,7 @@ def _agent_impl(obs, deadline=None):
         # Адаптируем веса под текущий контекст (stance + ratio).
         # _adapt_swarm_weights возвращает копию SWARM_WEIGHTS с динамичными
         # transfer-порогами и desperate-режимом (см. подробный комментарий).
-        eff_weights = _adapt_swarm_weights(SWARM_WEIGHTS, ctx, ratio)
+        eff_weights = _adapt_swarm_weights(_active_weights, ctx, ratio)
         if _dbg.enabled():
             try:
                 _stance = getattr(ctx, 'stance', '?') if ctx else '?'

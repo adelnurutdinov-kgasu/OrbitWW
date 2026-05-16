@@ -80,7 +80,7 @@ def _eta_est(src, tgt, ships: int) -> float:
     return max(1.0, d / max(spd, 1e-6))
 
 
-def _overkill(tgt, risk_tolerance: int) -> int:
+def _oppreset_overkill(tgt, risk_tolerance: int) -> int:
     """Minimum overkill buffer mirroring SAFETY_OVERKILL logic.
 
     risk_tolerance reduces the buffer (more aggressive, risker attacks).
@@ -95,7 +95,7 @@ def _overkill(tgt, risk_tolerance: int) -> int:
 
 def _score(src, tgt, surplus: int, W: SwarmWeights) -> float:
     """Simplified action_value for (src->tgt) under SwarmWeights W."""
-    ok      = _overkill(tgt, W.risk_tolerance)
+    ok      = _oppreset_overkill(tgt, W.risk_tolerance)
     margin  = surplus - float(tgt.ships) - ok
     eta     = _eta_est(src, tgt, surplus)
     comfort = max(0.0, min(1.0, W.distance_comfort))
@@ -149,7 +149,7 @@ def get_preset_actions(preset_name: str, state, opp_id: int) -> List[dict]:
                     continue
                 if segment_hits_sun(src.x, src.y, tgt.x, tgt.y, safety=SUN_SAFETY):
                     continue
-                ok      = _overkill(tgt, W.risk_tolerance)
+                ok      = _oppreset_overkill(tgt, W.risk_tolerance)
                 needed  = int(tgt.ships) + ok
                 send    = surp if tgt.owner == opp_id else min(surp, max(MIN_SURPLUS, needed))
                 if send < MIN_SURPLUS:

@@ -166,6 +166,29 @@ class SwarmWeights:
     # Применяется ТОЛЬКО к зонам frontline и contested; rear/bastion не трогаем.
     garrison_per_prod: float = 0.0
 
+    # ── Приоритет атаки по силе оппонента ────────────────────────────────
+    # В FFA (и иногда в 1v1) выгодно атаковать слабого прежде сильного:
+    # слабый — лёгкие планеты + устранение → меньше фронтов.
+    #
+    # opp_strength_weight (W):
+    #   0.0 = выключено (дефолт, нет изменений)
+    #   > 0 = бонус за атаку слабых / штраф за атаку сильных.
+    #
+    # Механика: для каждой вражеской цели вычисляем relative_strength её хозяина
+    # (сила / средняя сила по всем врагам). В _action_value добавляем:
+    #   opp_bonus = W * (1 - rel_strength) * eta_bonus
+    # Примеры при W=0.5, eta_bonus=30:
+    #   rel=0.5 (вдвое слабее): +7.5  (агрессивнее атакуем слабого)
+    #   rel=1.0 (средний):        0.0  (нет изменений)
+    #   rel=2.0 (вдвое сильнее): −15.0 (избегаем лезть на сильного)
+    #
+    # opp_prod_factor: вес производства в оценке силы.
+    #   сила_i = ships_i + prod_factor * prod_i
+    #   production важнее в долгосрочной перспективе, но не известен наперёд.
+    #   5.0 ≈ "1 прод = 5 кораблей" (конвертируется за ~5 ходов).
+    opp_strength_weight: float = 0.0
+    opp_prod_factor:     float = 5.0
+
     # ── Priority-reclassify порог (для zones.py post-pass) ────────────────
     # prio_reclassify_thr      — порог в начале матча (step=0).
     # prio_reclassify_thr_late — порог в конце матча (step=TOTAL_STEPS).
@@ -186,7 +209,7 @@ DEFAULT_WEIGHTS = SwarmWeights()
 
 # ── Helpers ─────────────────────────────────────────────────────────────
 
-def _seg_blocked(a, b, safety=SUN_SAFETY_PIPE):
+def _swarm_seg_blocked(a, b, safety=SUN_SAFETY_PIPE):
     return segment_hits_sun(a.x, a.y, b.x, b.y, safety=safety)
 
 
@@ -208,7 +231,8 @@ def _action_actors(plan):
     return actors
 
 
-def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
+def _action_value(plan, weights, priority_lookup=None, ships_lookup=None,
+                  opp_strength_lookup=None):
     """Скор плана для сортировки в аукционе.
 
     margin            — успешные планы положительный, fail отрицательный
@@ -219,6 +243,10 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
                         накопилось много, его действия должны идти первыми в
                         аукционе — иначе она годами сидит в роли supplier'a и
                         никогда не стреляет.
+    + opp_bonus       — бонус за атаку слабого оппонента / штраф за сильного.
+                        opp_strength_lookup: {tgt_id → relative_strength}
+                        rel < 1 = слабее среднего → положительный бонус
+                        rel > 1 = сильнее → отрицательный (штраф)
     """
     margin = float(plan.get('margin', 0.0))
     eta    = float(plan.get('t_total', 0.0)) + 1.0
@@ -234,7 +262,7 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
     if priority_lookup is not None:
         prio = priority_lookup.get(plan.get('tgt_id'), 0.0)
 
-    ships_term   = 0.0
+    ships_term    = 0.0
     activity_term = 0.0
     if ships_lookup is not None:
         actor_ships_list = [
@@ -251,8 +279,17 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
         )
         activity_term = weights.activity_weight * idle_max
 
+    # Бонус/штраф по силе оппонента-владельца цели.
+    # Масштабируется через eta_bonus — чтобы быть в той же размерности что
+    # остальные слагаемые (eta_term при eta=10 → ~3.0 при eta_bonus=30).
+    opp_bonus = 0.0
+    _opp_w = getattr(weights, 'opp_strength_weight', 0.0)
+    if _opp_w != 0.0 and opp_strength_lookup is not None:
+        rel = opp_strength_lookup.get(plan.get('tgt_id'), 1.0)
+        opp_bonus = _opp_w * (1.0 - rel) * weights.eta_bonus
+
     return (margin + eta_term + weights.priority_bonus * prio
-            + ships_term + activity_term)
+            + ships_term + activity_term + opp_bonus)
 
 
 # ── Stress ──────────────────────────────────────────────────────────────
@@ -304,7 +341,7 @@ def neighbor_stress(stress, ours):
 
 # ── Auction ─────────────────────────────────────────────────────────────
 
-def auction(candidates, ours, weights, priority_lookup=None):
+def auction(candidates, ours, weights, priority_lookup=None, opp_strength_lookup=None):
     """
     Single-pass greedy: сортируем все действия по value, идём сверху,
     коммитим если у всех акторов хватит ships и target не захвачен.
@@ -325,7 +362,8 @@ def auction(candidates, ours, weights, priority_lookup=None):
     scored = [
         (
             (1 if plan.get('success') else 0),
-            _action_value(plan, weights, priority_lookup, ships_lookup),
+            _action_value(plan, weights, priority_lookup, ships_lookup,
+                          opp_strength_lookup),
             i,
             plan,
         )
@@ -376,7 +414,7 @@ class _ANode:
 
 
 def auction_mcts(candidates, ours, weights, priority_lookup=None,
-                 time_budget=0.05, c_uct=1.414):
+                 opp_strength_lookup=None, time_budget=0.05, c_uct=1.414):
     """UCT-аукцион: ищет лучшую комбинацию планов вместо жадного прохода.
 
     Зачем: жадный single-pass проигрывает когда два плана делят один актор.
@@ -399,13 +437,15 @@ def auction_mcts(candidates, ours, weights, priority_lookup=None,
     valid = sorted(
         [p for p in candidates
          if p.get('success') and _plan_total_ships(p) >= MIN_USEFUL_STRIKE],
-        key=lambda p: -_action_value(p, weights, priority_lookup, ships_lk),
+        key=lambda p: -_action_value(p, weights, priority_lookup, ships_lk,
+                                     opp_strength_lookup),
     )
     n = len(valid)
     if not n:
         return [], dict(budget0), set(), []
 
-    pvals = [_action_value(p, weights, priority_lookup, ships_lk) for p in valid]
+    pvals = [_action_value(p, weights, priority_lookup, ships_lk,
+                           opp_strength_lookup) for p in valid]
 
     # Лучшее решение среди всех rollout'ов (инициализируется greedy baseline)
     best = {'v': -1.0, 'comm': [], 'rem': dict(budget0), 'cap': set()}
@@ -561,7 +601,7 @@ def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights
         for Q in ours:
             if Q.id == P.id:
                 continue
-            if _seg_blocked(P, Q):
+            if _swarm_seg_blocked(P, Q):
                 continue
             eta_pq, _ = _rendezvous_eta(P, Q, max(1, int(free)), state.omega)
             if eta_pq > horizon:
@@ -650,6 +690,47 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
     if not ours or not targets:
         return [], {'reason': 'no ours or no targets'}
 
+    # ── Opponent strength lookup (для opp_strength_weight) ────────────────
+    # Считаем силу каждого противника: ships + prod_factor * production.
+    # Нормализуем к среднему среди врагов → rel_strength = 1.0 означает средний враг.
+    # opp_bonus в _action_value = W * (1.0 - rel_strength) * eta_bonus:
+    #   rel < 1 (слабый) → bonus > 0 (атакуем охотнее)
+    #   rel > 1 (сильный) → bonus < 0 (осторожнее)
+    opp_strength_lookup: dict = {}
+    _opp_w = getattr(weights, 'opp_strength_weight', 0.0)
+    if _opp_w != 0.0:
+        prod_factor = getattr(weights, 'opp_prod_factor', 5.0)
+        # Суммируем корабли и производство по owner (планеты + флоты)
+        opp_ships: dict = {}
+        opp_prod:  dict = {}
+        for p in raw:
+            own = p.owner
+            if own == player or own < 0:
+                continue
+            opp_ships[own] = opp_ships.get(own, 0.0) + float(getattr(p, 'ships', 0) or 0)
+            opp_prod[own]  = opp_prod.get(own,  0.0) + float(getattr(p, 'production', 0) or 0)
+        # Флоты тоже учитываем
+        for f in getattr(state, 'fleets', []):
+            own = getattr(f, 'owner', -1)
+            if own == player or own < 0:
+                continue
+            opp_ships[own] = opp_ships.get(own, 0.0) + float(getattr(f, 'ships', 0) or 0)
+        # Суммарная сила каждого врага
+        opp_ids = set(opp_ships) | set(opp_prod)
+        if opp_ids:
+            strength = {oid: opp_ships.get(oid, 0.0) + prod_factor * opp_prod.get(oid, 0.0)
+                        for oid in opp_ids}
+            mean_s = sum(strength.values()) / len(strength)
+            if mean_s > 0:
+                rel = {oid: s / mean_s for oid, s in strength.items()}
+            else:
+                rel = {oid: 1.0 for oid in opp_ids}
+            # Строим lookup: tgt_id (planet id) → rel_strength его owner'а
+            for p in raw:
+                own = p.owner
+                if own in rel:
+                    opp_strength_lookup[p.id] = rel[own]
+
     # cap по числу целей (на ход с 30+ нейтралами это спасает от per-step timeout)
     if max_targets is not None and len(targets) > max_targets:
         if priority_lookup:
@@ -668,7 +749,7 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
     blocked_pairs: set = set()
     for _src in ours:
         for _tgt in targets:
-            if _seg_blocked(_src, _tgt):
+            if _swarm_seg_blocked(_src, _tgt):
                 blocked_pairs.add((_src.id, _tgt.id))
 
     candidates = []
@@ -707,12 +788,14 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
             mcts_budget = max(0.02, rem_time * 0.30)
         committed, remaining, captured, unfunded = auction_mcts(
             candidates, ours, weights, priority_lookup=priority_lookup,
+            opp_strength_lookup=opp_strength_lookup,
             time_budget=mcts_budget,
             c_uct=getattr(weights, 'mcts_c_uct', 1.414),
         )
     else:
         committed, remaining, captured, unfunded = auction(
             candidates, ours, weights, priority_lookup=priority_lookup,
+            opp_strength_lookup=opp_strength_lookup,
         )
 
     # 3. Redistribute остатки в TRANSFER.

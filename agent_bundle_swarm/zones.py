@@ -42,19 +42,17 @@ W_OURS = {
 }
 W_TARGETS = {
     'area_inv':        +0.4,
-    'wnn_close_res':   +0.8,    # tournament-winner (turn 2026-04-28): был +0.8
-    'mean_dist_all':   -0.2,    # tournament-winner (turn 2026-04-28): был -0.6
-    'prod':            +0.5,
-    'ships':           -0.5,    # tournament-winner (turn 2026-04-28): был -0.7
+    'wnn_close_res':   +0.8,    # confirmed by per-launch analysis (270k launches, 500 replays)
+    'mean_dist_all':   -0.4,    # strengthened: empirical -0.76 neutral, -0.34 enemy
+    'prod':            +0.5,    # confirmed ✓
+    'ships':           -0.5,    # confirmed ✓
     'n_cross':         +0.4,
-    'late_aggression': +0.9,   # БАЗОВЫЙ вес (phase-multiplier применяется внутри
-                               # compute_zones). Эффективный вес ≈ phase·0.6:
-                               #   step=  0  → 0.00
-                               #   step=125 → 0.15  (Q1→Q2)
-                               #   step=250 → 0.30  (Q3 средняя)
-                               #   step=375 → 0.45  (Q3→Q4)
-                               #   step=500 → 0.60  (финал)
-                               # Тюнить ОДНУ цифру, а phase сама подскейлит.
+    'late_aggression': -0.5,    # FLIPPED from +0.9 (2025-05 empirical analysis)
+                                # 60% enemy + 50% neutral attacks prefer SHALLOW targets.
+                                # Top-reward players: median rel_late_agg = -1.91 (shallow).
+                                # Prediction accuracy: neutral 54.6% (+3.5pp), enemy 64.3% (+10pp).
+                                # phase-multiplier kept: effective weight ≈ phase × (-0.5)
+                                # TODO: add ripeness=prod/(1+ships) as separate feature (+0.9)
 }
 
 THR_HI = 0.5

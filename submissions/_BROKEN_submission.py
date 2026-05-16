@@ -1,5 +1,5 @@
-# Auto-generated submission — 2026-05-02T08:50:10
-# Source: agent_bundle_swarm/ + winner_seed20 веса
+# Auto-generated submission — 2026-05-16T06:43:06
+# Source: agent_bundle_swarm 2
 # Build: tuning/scripts/build_submission.py
 
 
@@ -1357,7 +1357,7 @@ def load_history(path: str) -> List[GameState]:
 # Быстрый smoke-test при запуске как скрипт
 # ══════════════════════════════════════════════════════════════════════════
 
-if __name__ == "__main__":
+if False:  # disabled in submission (kaggle exec)
     import pprint
 
     print("=== Генерация карты seed=42 ===")
@@ -1655,6 +1655,14 @@ def _safe(v, fmt='{:.2f}'):
 def begin_turn(step, player, n_planets, n_fleets):
     if not enabled():
         return
+    # При каждом новом матче (step==0) пишем разделитель с таймстампом — сразу
+    # видно где начинается новая партия и какой версией агента записан лог.
+    if step == 0:
+        ts = time.strftime('%Y-%m-%d %H:%M:%S')
+        _w()
+        _w('=' * 72)
+        _w(f'  SESSION  {ts}')
+        _w('=' * 72)
     _w()
     _w(f'===== TURN {step}  player={player}  ts={time.strftime("%Y-%m-%d %H:%M:%S")}  '
        f'planets={n_planets}  fleets={n_fleets}  =====')
@@ -1783,6 +1791,86 @@ def log_fleets(fleets, player):
            f'({f.x:>5.1f},{f.y:>5.1f})   {math.degrees(f.angle):+7.2f}°   {f.ships}')
 
 
+def log_remaining(remaining, zone_lookup=None):
+    """Остаток кораблей на каждой нашей планете после аукциона.
+
+    Помогает найти idle-деньги: isolated/rear планеты с сотнями кораблей
+    которые не перебрасываются на фронт из-за высокого transfer_floor.
+    """
+    if not enabled() or not remaining:
+        return
+    # сортируем по убыванию остатка
+    items = sorted(remaining.items(), key=lambda x: -x[1])
+    parts = []
+    for pid, ships in items:
+        if ships > 0:
+            zone = (zone_lookup or {}).get(int(pid), '?')
+            parts.append(f'p{pid}={int(ships)}({zone})')
+    if parts:
+        _w('[REMAINING]  ' + '  '.join(parts))
+
+
+def log_transfers(plans, zone_lookup=None):
+    """Детальный лог transfer-планов: откуда, куда, сколько, какой градиент.
+
+    Без этого лога видно только 'transfers=3' в [SWARM] — непонятно
+    кто кому что отправил и почему.
+    """
+    if not enabled():
+        return
+    transfers = [p for p in (plans or []) if p.get('is_transfer')]
+    if not transfers:
+        return
+    _w(f'[TRANSFERS]  N={len(transfers)}')
+    for p in transfers:
+        src  = p.get('att_id', '?')
+        dst  = p.get('tgt_id', '?')
+        ships = int(p.get('x_att', 0))
+        eta  = p.get('eta_at', 0)
+        score = p.get('transfer_score', 0)
+        grad  = p.get('transfer_gradient', 0)
+        z_src = (zone_lookup or {}).get(int(src), '?') if src != '?' else '?'
+        z_dst = (zone_lookup or {}).get(int(dst), '?') if dst != '?' else '?'
+        _w(f'   p{src}({z_src}) → p{dst}({z_dst})'
+           f'  ships={ships}  eta={eta:.1f}  score={score:.2f}  grad={grad:+.2f}')
+
+
+def log_zone_flips(prev_zones, curr_zones):
+    """Логирует планеты сменившие зону с прошлого хода.
+
+    Помогает диагностировать zone thrashing — когда планеты скачут
+    между зонами каждые 2-3 хода (мешает стабильному таргетингу).
+    """
+    if not enabled() or not prev_zones or not curr_zones:
+        return
+    flips = []
+    for pid, new_zone in curr_zones.items():
+        old_zone = prev_zones.get(pid) or prev_zones.get(str(pid))
+        if old_zone is not None and old_zone != new_zone:
+            flips.append((int(pid), old_zone, new_zone))
+    if flips:
+        parts = '  '.join(f'p{pid}:{old}→{new}' for pid, old, new in sorted(flips))
+        _w(f'[ZONE_FLIP]  N={len(flips)}  {parts}')
+
+
+def log_bayes_confusion(entropy, max_entropy=1.6094):
+    """Метрика непонимания противника: confusion% = entropy / max_entropy * 100.
+
+    max_entropy = ln(5) ≈ 1.6094 для 5 пресетов — полная неопределённость.
+    confusion=100% → модель ничего не знает (равномерное распределение).
+    confusion=0%   → модель уверена в одном пресете.
+
+    Логируется отдельной строкой рядом с BAYES/predict для быстрого grep.
+    """
+    if not enabled():
+        return
+    confusion = min(100.0, 100.0 * float(entropy) / max_entropy)
+    bar_len = 20
+    filled = int(confusion / 100.0 * bar_len)
+    bar = '█' * filled + '░' * (bar_len - filled)
+    _w(f'[BAYES/confusion]  {confusion:5.1f}%  [{bar}]  entropy={entropy:.3f}')
+
+
 def log_error(where, exc):
     if not enabled():
         return
@@ -1808,6 +1896,7 @@ __all__ = [
     'enabled', 'reset', 'begin_turn', 'log_zones', 'log_targets', 'log_plans',
     'log_decision', 'log_moves', 'log_fleets', 'log_error', 'end_turn',
     'plans_all_enabled',
+    'log_remaining', 'log_transfers', 'log_zone_flips', 'log_bayes_confusion',
 ]
 
 # ╔══════════════════════════════════════════════════╗
@@ -2192,13 +2281,10 @@ MIN_USEFUL_STRIKE      = 3     # ниже — атака не имеет смы�
 ETA_REFINE_ITERS       = 2     # сколько раз пересчитать eta при изменении кораблей
 INCOMING_ANGLE_TOL     = 0.18  # рад (~10°): флот целится в цель если так
 RESERVE_ON_ATT         = 0     # минимум кораблей оставить на атакере.
-                               # ОБЯЗАН совпадать с agent.RESERVE_ON_ATT — иначе
-                               # планировщик считает доступными att.ships, а
-                               # исполнитель отправляет att.ships-1 → план с
-                               # margin=+1 в реальности проигрывает defender'у
-                               # на 1 корабль и планета остаётся нейтральной
-                               # с 1 ship на борту (см. бандл turn=16 на
-                               # multi_sync 4→0→26).
+                               # ОБЯЗАН совпадать с agent.RESERVE_ON_ATT.
+                               # Тай на нейтрале предотвращается через
+                               # SAFETY_OVERKILL_NEUTRAL=1 (нужно строго больше
+                               # defender), а не через резервирование корабля.
 
 # ── Порог "одновременности" для multi_sync ────────────────────────────────
 # `agent._plan_parts` эмитит ОБА флота СРАЗУ в один ход → быстрый прилетит
@@ -2422,8 +2508,16 @@ def _required_strike(state, att, tgt, omega, init_eta_ships, incoming, risk=0):
 
 # ── eval_direct ────────────────────────────────────────────────────────
 
-def eval_direct(state, att, tgt, incoming=0.0, risk=0):
-    """Прямая атака att → tgt. x_att = минимум для победы (с учётом incoming)."""
+def eval_direct(state, att, tgt, incoming=0.0, risk=0, neutral_garrison=0):
+    """Прямая атака att → tgt.
+
+    x_att = минимум для победы (с учётом incoming).
+    Для НЕЙТРАЛОВ: если affordable — добавляем neutral_garrison кораблей
+    сверх минимума. Флот прилетит быстрее (Orbit Wars: скорость растёт с
+    числом кораблей) и планета сразу получит гарнизон без отдельного трансфера.
+    success определяется по минимуму (без garrison) — захватываем всегда если
+    можем, garrison = приятный бонус сверху.
+    """
     if _seg_blocked(att, tgt):
         return None
 
@@ -2431,7 +2525,14 @@ def eval_direct(state, att, tgt, incoming=0.0, risk=0):
     available = att.ships - RESERVE_ON_ATT
     success   = needed <= available
 
-    x_att = needed if success else max(1, available)
+    if success:
+        if tgt.owner == NEUTRAL_OWNER and neutral_garrison > 0:
+            # Добавляем гарнизон сверх минимума, но не больше доступных кораблей
+            x_att = min(available, needed + neutral_garrison)
+        else:
+            x_att = needed
+    else:
+        x_att = max(1, available)
 
     return {
         'mode':      'direct',
@@ -2665,11 +2766,14 @@ def eval_pipe(state, sup, att, tgt, incoming=0.0, risk=0):
 
 # ── all_plans ──────────────────────────────────────────────────────────
 
-def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0, risk=0):
+def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0, risk=0,
+              neutral_garrison=0):
     """Все возможные планы атаки на tgt.
 
     Если state — ProjectedState, incoming уже учтён в tgt.ships, поэтому
     дополнительно его не считаем. Иначе используем friendly_incoming как раньше.
+    neutral_garrison — дополнительные корабли сверх минимума при захвате нейтрала
+    (передаётся в eval_direct; multi_sync и pipeline не меняем — там арифметика сложнее).
     """
     if hasattr(state, 'projected_at'):
         incoming = 0.0
@@ -2680,7 +2784,8 @@ def all_plans(state, tgt, ours, horizon=ATTACK_HORIZON, player=0, risk=0):
     for att in ours:
         if att.id == tgt.id:
             continue
-        d = eval_direct(state, att, tgt, incoming=incoming, risk=risk)
+        d = eval_direct(state, att, tgt, incoming=incoming, risk=risk,
+                        neutral_garrison=neutral_garrison)
         if d and d['t_total'] <= horizon:
             plans.append(d)
 
@@ -2776,6 +2881,44 @@ import pandas as pd
 import numpy as np
 
 
+# ── Орбитальное сближение: orbit-aware дистанция ──────────────────────────
+# Вместо текущего евклида берём МИНИМАЛЬНУЮ дистанцию между двумя планетами
+# за ближайшие APPROACH_LOOKAHEAD ходов — учитывает вращение орбит.
+#
+#   Сценарии:
+#     target летит к нам  → min < current → цель «ближе» → выше приоритет
+#     target летит от нас → min ≈ current → не хуже обычного
+#     обе планеты орбитальные → позиции обеих обновляются
+#     обе статичные (omega≈0) → возвращает обычный dist без оверхеда
+#
+# APPROACH_SAMPLE: сэмплируем каждые N ходов (компромисс точность/скорость).
+APPROACH_LOOKAHEAD = 30   # горизонт (ходов)
+APPROACH_SAMPLE    = 5    # шаг сэмплирования → 6 точек на 30 ходов
+
+
+def _approach_dist(p, q, omega):
+    """Минимальная дистанция между p и q за ближайшие APPROACH_LOOKAHEAD ходов.
+
+    Возвращает обычный dist если оба стационарны или omega≈0.
+    Иначе сэмплирует предсказанные позиции и возвращает минимум.
+    """
+    d_now = max(1.0, dist(p.x, p.y, q.x, q.y))
+    if abs(omega) < 1e-12:
+        return d_now
+    p_orb = is_orbital(p.x, p.y, p.radius)
+    q_orb = is_orbital(q.x, q.y, q.radius)
+    if not p_orb and not q_orb:
+        return d_now
+    min_d = d_now
+    for t in range(APPROACH_SAMPLE, APPROACH_LOOKAHEAD + 1, APPROACH_SAMPLE):
+        px, py = predict_planet_xy(p.x, p.y, p.radius, omega, t) if p_orb else (p.x, p.y)
+        qx, qy = predict_planet_xy(q.x, q.y, q.radius, omega, t) if q_orb else (q.x, q.y)
+        d = max(1.0, dist(px, py, qx, qy))
+        if d < min_d:
+            min_d = d
+    return min_d
+
+
 # ── Фичи зонирования ───────────────────────────────────────────────────────
 # `late_aggression` — регуляризатор, который САМА фича не содержит phase
 # (это важно: z-score нормализация всё равно сократила бы общий множитель).
@@ -2795,15 +2938,15 @@ W_OURS = {
     'mean_dist_all':   -0.3,
     'prod':            +0.4,
     'ships':           0,
-    'n_cross':         +0.9,
-    'late_aggression':  -0.2,   # для своих планет смысла не несёт
+    'n_cross':         +0.5,
+    'late_aggression':  0.2,   # для своих планет смысла не несёт
 }
 W_TARGETS = {
     'area_inv':        +0.4,
     'wnn_close_res':   +0.8,    # tournament-winner (turn 2026-04-28): был +0.8
     'mean_dist_all':   -0.2,    # tournament-winner (turn 2026-04-28): был -0.6
     'prod':            +0.5,
-    'ships':           -0.5,    # tournament-winner (turn 2026-04-28): был -0.7
+    'ships':           -0.4,    # tournament-winner (turn 2026-04-28): был -0.7
     'n_cross':         +0.4,
     'late_aggression': +0.9,   # БАЗОВЫЙ вес (phase-multiplier применяется внутри
                                # compute_zones). Эффективный вес ≈ phase·0.6:
@@ -2817,6 +2960,37 @@ W_TARGETS = {
 
 THR_HI = 0.5
 THR_LO = -0.5
+
+# ── Production-scarcity boost ──────────────────────────────────────────────
+# Ранняя игра: когда наш суммарный прод мал, высоко-продуктивные цели
+# получают дополнительный приоритет. Эффект плавно гасится к EARLY_PHASE_THR.
+#
+#   scarcity_boost = SCARCITY_K / (1 + our_total_prod)
+#   fade           = max(0, 1 - phase / EARLY_PHASE_THR)   ∈ [0, 1]
+#   eff_prod_w     = base_prod_w × (1 + scarcity_boost × fade)
+#
+# Примеры (SCARCITY_K=3, base_prod_w=0.5):
+#   step=0,   our_prod= 2  → fade=1.0, boost=1.0  → eff=0.5×(1+1.0)=1.00
+#   step=0,   our_prod= 8  → fade=1.0, boost=0.33 → eff=0.5×(1+0.33)=0.67
+#   step=75,  our_prod= 5  → fade=0.5, boost=0.5  → eff=0.5×(1+0.25)=0.63
+#   step=150, our_prod=any → fade=0.0              → eff=0.5 (нет буста)
+SCARCITY_K       = 5.0   # сила буста (тюнить от 1 до 5)
+EARLY_PHASE_THR  = 0.2   # фаза после которой буст = 0 (0.3 × 500 = step 150)
+
+# ── Priority-override для периферии ───────────────────────────────────────
+# Проблема: zone label и priority score вычисляются независимо.
+# Планета может иметь высокий priority (хорошая по совокупности фич),
+# но попасть в 'periphery' или 'hard_far' — catch-all зоны, которые
+# исключены из TARGET_ZONES в agent.py → никогда не попадёт в аукцион.
+#
+# Решение: post-pass после расчёта обоих. Если нецелевая планета имеет
+# priority ≥ PRIO_RECLASSIFY_THR — переклассифицируем её в 'priority_target'.
+# Это делает zone и priority согласованными: высокий score = попадает в торги.
+#
+# Порог: priority на z-score шкале, обычно ∈ [-3, +3] для целей.
+# 0.8 ≈ top-20% среди всех целей на карте. Тюнить от 0.5 до 1.5.
+PRIO_RECLASSIFY_THR = 0.8   # планеты выше → force-upgrading до priority_target
+PRIO_RECLASSIFY_ZONES = frozenset({'periphery', 'hard_far'})  # какие зоны апгрейдим
 
 ZONE_COLORS = {
     'frontline':       '#e05c3a',
@@ -2840,15 +3014,23 @@ def _zscore(s):
     return (s - s.mean()) / sig
 
 
-def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0):
+def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0,
+                  our_total_prod=0.0, prio_reclassify_thr=None):
     """
     Принимает DataFrame с колонками ZONE_FEATURES + 'owner' + 'pid'.
     Возвращает (df_extended, Z_scores).
 
-    `step` — ход матча. Используется как phase-множитель ТОЛЬКО для
-    late_aggression-фичи: эффективный вес = phase · w_targets['late_aggression'].
-    Применяется на уровне веса (а не самой фичи), чтобы z-score не сокращал
-    общий phase-множитель — иначе разница между early и late игрой стиралась.
+    `step` — ход матча. Используется как phase-множитель для двух вещей:
+      1. late_aggression: эффективный вес = phase · w_targets['late_aggression']
+      2. production-scarcity boost (early-game): вес prod у целей усиливается
+         обратно пропорционально our_total_prod и линейно гасится к EARLY_PHASE_THR.
+
+    `our_total_prod` — суммарный прод НАШИХ планет на текущий ход. Используется
+    для production-scarcity: чем меньше наш прод, тем сильнее буст на rich-цели.
+
+    `prio_reclassify_thr` — порог priority-override post-pass: планеты из
+    PRIO_RECLASSIFY_ZONES с priority ≥ thr → 'priority_target'. Если None —
+    используется модульная константа PRIO_RECLASSIFY_THR.
     """
     out = df.copy()
     Z = pd.DataFrame({m: _zscore(out[m]) for m in ZONE_FEATURES}, index=out.index)
@@ -2857,16 +3039,22 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0):
     is_ours = out['owner'] == player
     is_tgt  = ~is_ours
 
-    # phase-множитель — для late_aggression домножим вес.
+    # phase-множитель ∈ [0, 1]
     phase = max(0.0, min(1.0, float(step) / float(TOTAL_STEPS)))
 
-    def _eff_weights(base):
+    # production-scarcity: плавный буст ранней игры на prod-вес у целей
+    _fade = max(0.0, 1.0 - phase / EARLY_PHASE_THR)
+    _scarcity_boost = (SCARCITY_K / (1.0 + float(our_total_prod))) * _fade
+
+    def _eff_weights(base, is_targets=False):
         eff = dict(base)
         eff['late_aggression'] = eff.get('late_aggression', 0.0) * phase
+        if is_targets and _scarcity_boost > 0:
+            eff['prod'] = eff.get('prod', 0.0) * (1.0 + _scarcity_boost)
         return eff
 
-    eff_ours    = _eff_weights(w_ours)
-    eff_targets = _eff_weights(w_targets)
+    eff_ours    = _eff_weights(w_ours,    is_targets=False)
+    eff_targets = _eff_weights(w_targets, is_targets=True)
 
     out.loc[is_ours, 'priority'] = sum(
         eff_ours[m] * Z.loc[is_ours, m] for m in ZONE_FEATURES
@@ -2901,6 +3089,21 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0):
             return 'periphery'
 
     out['zone'] = [label(i) for i in out.index]
+
+    # ── Priority-override post-pass ────────────────────────────────────────
+    # Переклассифицируем 'periphery'/'hard_far' с высоким priority в
+    # 'priority_target', чтобы они попали в аукцион через TARGET_ZONES.
+    # Применяется ТОЛЬКО к нецелевым (не наши) планетам.
+    # Порог: prio_reclassify_thr (параметр) > PRIO_RECLASSIFY_THR (модульный дефолт).
+    _thr = PRIO_RECLASSIFY_THR if prio_reclassify_thr is None else float(prio_reclassify_thr)
+    reclassify_mask = (
+        is_tgt
+        & out['zone'].isin(PRIO_RECLASSIFY_ZONES)
+        & (out['priority'] >= _thr)
+    )
+    if reclassify_mask.any():
+        out.loc[reclassify_mask, 'zone'] = 'priority_target'
+
     return out, Z
 
 
@@ -2936,19 +3139,25 @@ def _planet_zone_features(state, p, player, horizon, ships_ref, comet_ids=None, 
         if q.owner not in (-1, player): return -1.0
         return 0.0
 
+    # omega для orbit-aware дистанции: берём из state (GameState) или state_view
+    # (SimpleNamespace с полем omega). Если поле отсутствует — 0.0 (статичные).
+    _omega = getattr(state_view, 'omega', 0.0) or 0.0
+
     wnn_close_res = 0.0
     wr_sum        = 0.0
     mean_dist_all = 0.0
     sum_d_to_ours = 0.0
     n_ours = 0
     for q in others:
-        d = max(1.0, dist(p.x, p.y, q.x, q.y))
+        # Orbit-aware: используем минимальную дистанцию за APPROACH_LOOKAHEAD ходов.
+        # Для статичных пар (omega≈0 или обе не на орбите) идентично обычному dist.
+        d = _approach_dist(p, q, _omega)
         w = (q.ships + 5.0 * q.production) / d
         wnn_close_res += _sign(q) * w
         wr_sum        += w
-        mean_dist_all += dist(p.x, p.y, q.x, q.y)
+        mean_dist_all += d
         if q.owner == player:
-            sum_d_to_ours += dist(p.x, p.y, q.x, q.y)
+            sum_d_to_ours += d
             n_ours += 1
     if wr_sum > 0:
         wnn_close_res /= wr_sum
@@ -2983,13 +3192,22 @@ def _planet_zone_features(state, p, player, horizon, ships_ref, comet_ids=None, 
 
 
 def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_REF,
-                              w_ours=W_OURS, w_targets=W_TARGETS, step=None):
+                              w_ours=W_OURS, w_targets=W_TARGETS, step=None,
+                              our_total_prod=None, prio_reclassify_thr=None):
     """
     Вход: GameState, player id.
     Выход: (df_with_zones, Z_scores) — готово для агента без тяжёлых вычислений.
 
     `step` — текущий ход матча. Если None — берётся из state.step. Нужен для
-    late_aggression-фичи (вес растёт линейно по ходу партии).
+    late_aggression-фичи и production-scarcity boost.
+
+    `our_total_prod` — суммарный прод наших планет. Если None — вычисляется
+    автоматически из state.planets. Используется для production-scarcity boost
+    в ранней игре: усиливает приоритет high-prod целей когда наш прод мал.
+
+    `prio_reclassify_thr` — порог priority-override (periphery/hard_far → priority_target).
+    Если None — используется PRIO_RECLASSIFY_THR. agent.py передаёт сюда stage-aware
+    значение интерполированное между prio_reclassify_thr и prio_reclassify_thr_late.
 
     Кометы (`state.comet_ids`) ОСОЗНАННО игнорируются:
       • не попадают в df (значит не выбираются как цели через TARGET_ZONES);
@@ -3000,16 +3218,25 @@ def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_R
     comet_ids = set(getattr(state, 'comet_ids', set()) or set())
     if step is None:
         step = int(getattr(state, 'step', 0) or 0)
+    if our_total_prod is None:
+        our_total_prod = sum(
+            float(p.production) for p in state.planets
+            if p.id not in comet_ids and p.owner == player
+        )
     rows = [_planet_zone_features(state, p, player, horizon, ships_ref,
                                    comet_ids=comet_ids, step=step)
             for p in state.planets if p.id not in comet_ids]
     df = pd.DataFrame(rows)
     return compute_zones(df, w_ours=w_ours, w_targets=w_targets,
-                         player=player, step=step)
+                         player=player, step=step, our_total_prod=our_total_prod,
+                         prio_reclassify_thr=prio_reclassify_thr)
 
 
 __all__ = [
     'ZONE_FEATURES', 'W_OURS', 'W_TARGETS', 'THR_HI', 'THR_LO', 'ZONE_COLORS',
+    'SCARCITY_K', 'EARLY_PHASE_THR',
+    'PRIO_RECLASSIFY_THR', 'PRIO_RECLASSIFY_ZONES',
+    'APPROACH_LOOKAHEAD', 'APPROACH_SAMPLE', '_approach_dist',
     'compute_zones', 'compute_zones_from_state',
 ]
 
@@ -3070,9 +3297,25 @@ agent._execute_plan_atomically → не делает defender check (mode != 'di
 """
 
 import math
+import random as _random
+import time as _t
 from dataclasses import dataclass, field
 from itertools import product as _product
 
+
+# ── Зональная срочность для распределения подкреплений ───────────────────
+# Чем выше urgency у планеты-получателя — тем приоритетнее перебросить
+# туда корабли. Frontline/contested нуждаются в подкреплениях сильнее
+# тыловых bastion/rear, независимо от того есть ли у них attack-планы.
+ZONE_URGENCY: dict = {
+    'frontline':  3.0,
+    'contested':  2.0,
+    'isolated':   1.5,
+    'mid':        1.0,
+    'rear':       0.5,
+    'bastion':    0.3,
+}
+_ZONE_URG_DEFAULT = 1.0   # для неизвестных меток
 
 
 # ── Параметризация (для тюнинга) ────────────────────────────────────────
@@ -3109,13 +3352,96 @@ class SwarmWeights:
     # supply для атак идёт только через pipeline/multi_sync (осознанный duplet),
     # defense — через agent._build_defense_plans (raw=ours, projected=enemy).
     # Если хочешь экспериментировать с диффузией — включи.
-    enable_redistribute: bool = False
+    enable_redistribute: bool = True
     transfer_horizon: float = 40.0    # макс ETA для TRANSFER (если включено)
     transfer_floor:   float = 20.0    # GARRISON_FLOOR — не отправляем ниже
     transfer_thresh:  float = 5.0     # минимум score для коммита transfer
     transfer_eta_pen: float = 0.05    # штраф за ETA в transfer-score
     transfer_buffer:  float = 1.0     # ships сверх deficit получателя
     transfer_min_ships: int = 15      # минимум ships в одной TRANSFER-партии (анти-«капельница»)
+    max_transfers_per_turn: int = 2  # максимум transfer-планов за ход (антидрейн)
+
+    # ── MCTS аукцион ──────────────────────────────────────────────────────
+    # Заменяет жадный single-pass на UCT-поиск по пространству комбинаций
+    # планов. Находит лучший набор когда планы конкурируют за один актор.
+    # use_mcts_auction=False → старый жадный (по умолчанию, нулевой overhead).
+    # Включать после профилирования: занимает часть time budget до deadline.
+    use_mcts_auction:    bool  = False
+    mcts_c_uct:          float = 1.414   # UCB1 exploration constant (√2)
+
+    # ── Зональный градиент в redistribute ────────────────────────────────
+    # Добавляет (urgency[Q] − urgency[P]) × zone_urgency_weight к градиенту
+    # transfer-score. Направляет корабли rear/bastion → frontline/contested
+    # вне зависимости от attack-stress. 0.0 = только стресс (старое поведение).
+    zone_urgency_weight: float = 1.5
+
+    # ── Фильтр мелких direct-атак ─────────────────────────────────────────
+    # direct-план с x_att < min_direct_att отбрасывается ЕСЛИ цель тоже
+    # крупнее порога. Это отсекает 6-кор. флоты против 50-кор. планет,
+    # но оставляет легальные атаки на маленьких нейтралов (x_tgt < порога).
+    min_direct_att: int = 8
+
+    # ── Гарнизон при захвате нейтрала ────────────────────────────────────
+    # Сколько кораблей сверх минимума отправлять при атаке нейтрала.
+    # Пример: нейтрал = 12 кораблей → без garrison отправляем 13, прилетаем
+    # с 1 кораблём → redistribute сразу планирует трансфер (долго летит,
+    # блокирует проекцию). С neutral_garrison=8 отправляем 21, прилетаем
+    # с 9 кораблями — гарнизон встроен. Плюс: больше кораблей = быстрее летим
+    # (fleet_speed_correct зависит от кол-ва), захват приходит раньше.
+    # 0 = старое поведение (минимум). Хорошее стартовое значение: 5-10.
+    neutral_garrison: int = 0
+
+    # ── Проактивный гарнизон frontline/contested (для redistribute) ───────
+    # Когда transfer не привязан к конкретному unfunded-плану (нет «события»),
+    # redistribute всё равно должен уметь укрепить слабые frontline/contested
+    # планеты до целевого уровня.
+    #
+    # Цель гарнизона = production × garrison_per_prod:
+    #   production=3, garrison_per_prod=8 → цель=24 кораблей
+    # Дефицит = max(0, цель − current_ships). Если у планеты уже ≥ цели —
+    # дополнительного трансфера нет (deficit=0, кроме unfunded-дефицита).
+    #
+    # 0.0 = старое поведение (только unfunded-дефицит).
+    # Хорошее стартовое значение: 5–10.
+    # Применяется ТОЛЬКО к зонам frontline и contested; rear/bastion не трогаем.
+    garrison_per_prod: float = 0.0
+
+    # ── Приоритет атаки по силе оппонента ────────────────────────────────
+    # В FFA (и иногда в 1v1) выгодно атаковать слабого прежде сильного:
+    # слабый — лёгкие планеты + устранение → меньше фронтов.
+    #
+    # opp_strength_weight (W):
+    #   0.0 = выключено (дефолт, нет изменений)
+    #   > 0 = бонус за атаку слабых / штраф за атаку сильных.
+    #
+    # Механика: для каждой вражеской цели вычисляем relative_strength её хозяина
+    # (сила / средняя сила по всем врагам). В _action_value добавляем:
+    #   opp_bonus = W * (1 - rel_strength) * eta_bonus
+    # Примеры при W=0.5, eta_bonus=30:
+    #   rel=0.5 (вдвое слабее): +7.5  (агрессивнее атакуем слабого)
+    #   rel=1.0 (средний):        0.0  (нет изменений)
+    #   rel=2.0 (вдвое сильнее): −15.0 (избегаем лезть на сильного)
+    #
+    # opp_prod_factor: вес производства в оценке силы.
+    #   сила_i = ships_i + prod_factor * prod_i
+    #   production важнее в долгосрочной перспективе, но не известен наперёд.
+    #   5.0 ≈ "1 прод = 5 кораблей" (конвертируется за ~5 ходов).
+    opp_strength_weight: float = 0.0
+    opp_prod_factor:     float = 5.0
+
+    # ── Priority-reclassify порог (для zones.py post-pass) ────────────────
+    # prio_reclassify_thr      — порог в начале матча (step=0).
+    # prio_reclassify_thr_late — порог в конце матча (step=TOTAL_STEPS).
+    # agent.py линейно интерполирует между ними по фазе → stage-aware тюнинг.
+    #
+    # Если оба одинаковые (дефолт) — статичный порог, нет интерполяции.
+    # Пример stage-aware: thr=0.4 (агрессивная ранняя экспансия) →
+    #                      thr_late=1.5 (осторожно в поздней игре).
+    #
+    # 99.0 = фактически выключить override (никакая periphery не апгрейдится).
+    # Тюнинговый диапазон: 0.4 … 1.8.
+    prio_reclassify_thr:      float = 0.8
+    prio_reclassify_thr_late: float = 0.8   # = thr → нет интерполяции по дефолту
 
 
 DEFAULT_WEIGHTS = SwarmWeights()
@@ -3145,7 +3471,8 @@ def _action_actors(plan):
     return actors
 
 
-def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
+def _action_value(plan, weights, priority_lookup=None, ships_lookup=None,
+                  opp_strength_lookup=None):
     """Скор плана для сортировки в аукционе.
 
     margin            — успешные планы положительный, fail отрицательный
@@ -3156,6 +3483,10 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
                         накопилось много, его действия должны идти первыми в
                         аукционе — иначе она годами сидит в роли supplier'a и
                         никогда не стреляет.
+    + opp_bonus       — бонус за атаку слабого оппонента / штраф за сильного.
+                        opp_strength_lookup: {tgt_id → relative_strength}
+                        rel < 1 = слабее среднего → положительный бонус
+                        rel > 1 = сильнее → отрицательный (штраф)
     """
     margin = float(plan.get('margin', 0.0))
     eta    = float(plan.get('t_total', 0.0)) + 1.0
@@ -3171,7 +3502,7 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
     if priority_lookup is not None:
         prio = priority_lookup.get(plan.get('tgt_id'), 0.0)
 
-    ships_term   = 0.0
+    ships_term    = 0.0
     activity_term = 0.0
     if ships_lookup is not None:
         actor_ships_list = [
@@ -3188,8 +3519,17 @@ def _action_value(plan, weights, priority_lookup=None, ships_lookup=None):
         )
         activity_term = weights.activity_weight * idle_max
 
+    # Бонус/штраф по силе оппонента-владельца цели.
+    # Масштабируется через eta_bonus — чтобы быть в той же размерности что
+    # остальные слагаемые (eta_term при eta=10 → ~3.0 при eta_bonus=30).
+    opp_bonus = 0.0
+    _opp_w = getattr(weights, 'opp_strength_weight', 0.0)
+    if _opp_w != 0.0 and opp_strength_lookup is not None:
+        rel = opp_strength_lookup.get(plan.get('tgt_id'), 1.0)
+        opp_bonus = _opp_w * (1.0 - rel) * weights.eta_bonus
+
     return (margin + eta_term + weights.priority_bonus * prio
-            + ships_term + activity_term)
+            + ships_term + activity_term + opp_bonus)
 
 
 # ── Stress ──────────────────────────────────────────────────────────────
@@ -3241,7 +3581,7 @@ def neighbor_stress(stress, ours):
 
 # ── Auction ─────────────────────────────────────────────────────────────
 
-def auction(candidates, ours, weights, priority_lookup=None):
+def auction(candidates, ours, weights, priority_lookup=None, opp_strength_lookup=None):
     """
     Single-pass greedy: сортируем все действия по value, идём сверху,
     коммитим если у всех акторов хватит ships и target не захвачен.
@@ -3262,7 +3602,8 @@ def auction(candidates, ours, weights, priority_lookup=None):
     scored = [
         (
             (1 if plan.get('success') else 0),
-            _action_value(plan, weights, priority_lookup, ships_lookup),
+            _action_value(plan, weights, priority_lookup, ships_lookup,
+                          opp_strength_lookup),
             i,
             plan,
         )
@@ -3297,16 +3638,161 @@ def auction(candidates, ours, weights, priority_lookup=None):
     return committed, remaining, captured, unfunded
 
 
+# ── MCTS аукцион ────────────────────────────────────────────────────────
+
+class _ANode:
+    """UCT-узел дерева аукциона.
+
+    На глубине i дерева стоит решение по candidates[i]: включить (True)
+    или пропустить (False). Каждый путь корень→лист — одна комбинация планов.
+    """
+    __slots__ = ('n', 'v', 'ch')
+    def __init__(self):
+        self.n  = 0      # число посещений
+        self.v  = 0.0    # суммарная ценность backprop
+        self.ch = {}     # bool → _ANode
+
+
+def auction_mcts(candidates, ours, weights, priority_lookup=None,
+                 opp_strength_lookup=None, time_budget=0.05, c_uct=1.414):
+    """UCT-аукцион: ищет лучшую комбинацию планов вместо жадного прохода.
+
+    Зачем: жадный single-pass проигрывает когда два плана делят один актор.
+    Пример: план A (ценный, актор P) выбирается первым и блокирует планы
+    B+C (меньше каждый, но сумма > A), которые оба могут пройти без A.
+    MCTS исследует пространство include/skip и находит B+C.
+
+    Алгоритм:
+      1. Кандидаты сортируются по value (как в greedy).
+      2. UCT-дерево: на глубине i — решение include/skip для candidates[i].
+      3. Rollout из текущего узла: жадный проход до конца списка.
+      4. Обновляем best-solution если rollout дал лучший суммарный value.
+      5. Backprop: обновляем n/v всех узлов пути.
+
+    Возвращает тот же интерфейс что auction().
+    """
+    budget0  = {p.id: max(0, int(p.ships) - RESERVE_ON_ATT) for p in ours}
+    ships_lk = {p.id: int(p.ships) for p in ours}
+
+    valid = sorted(
+        [p for p in candidates
+         if p.get('success') and _plan_total_ships(p) >= MIN_USEFUL_STRIKE],
+        key=lambda p: -_action_value(p, weights, priority_lookup, ships_lk,
+                                     opp_strength_lookup),
+    )
+    n = len(valid)
+    if not n:
+        return [], dict(budget0), set(), []
+
+    pvals = [_action_value(p, weights, priority_lookup, ships_lk,
+                           opp_strength_lookup) for p in valid]
+
+    # Лучшее решение среди всех rollout'ов (инициализируется greedy baseline)
+    best = {'v': -1.0, 'comm': [], 'rem': dict(budget0), 'cap': set()}
+
+    def _rollout(idx, rem, cap, v0, comm0):
+        """Жадный rollout с позиции idx; обновляет best если нашли лучше."""
+        r = dict(rem); c = set(cap); comm = list(comm0); v = v0
+        for i in range(idx, n):
+            p = valid[i]; tgt = p.get('tgt_id')
+            if tgt in c:
+                continue
+            acts = _action_actors(p)
+            if any(r.get(a, 0) < cost for a, cost in acts):
+                continue
+            for a, cost in acts:
+                r[a] -= cost
+            c.add(tgt); comm.append(p); v += pvals[i]
+        if v > best['v']:
+            best.update(v=v, comm=comm[:], rem=r, cap=set(c))
+        return v
+
+    # Seed: чисто жадный baseline (гарантирует не хуже старого поведения)
+    _rollout(0, budget0, set(), 0.0, [])
+
+    root  = _ANode()
+    t_end = _t.perf_counter() + time_budget
+
+    while _t.perf_counter() < t_end:
+        # ── Selection + Expansion ────────────────────────────────────
+        node     = root
+        rem      = dict(budget0)
+        cap      = set()
+        acc_v    = 0.0
+        acc_comm = []
+        path     = [root]   # узлы для backprop
+        idx      = 0
+
+        while idx < n:
+            p    = valid[idx]
+            tgt  = p.get('tgt_id')
+            acts = _action_actors(p)
+            can_inc = (tgt not in cap
+                       and all(rem.get(a, 0) >= cost for a, cost in acts))
+            avail = [False] + ([True] if can_inc else [])
+
+            # Нераскрытые дети → expansion
+            unexp = [a for a in avail if a not in node.ch]
+            if unexp:
+                action = _random.choice(unexp)
+                child  = _ANode()
+                node.ch[action] = child
+                if action:   # include
+                    for a, cost in acts:
+                        rem[a] -= cost
+                    cap.add(tgt); acc_v += pvals[idx]; acc_comm.append(p)
+                path.append(child)
+                node = child
+                idx += 1
+                break        # один expansion → rollout
+
+            # UCT-выбор среди уже открытых детей
+            log_n = math.log(max(1, node.n))
+            best_a, best_s = None, -1e18
+            for a in avail:
+                ch = node.ch[a]
+                s  = (ch.v / ch.n + c_uct * math.sqrt(log_n / ch.n)
+                      if ch.n > 0 else 1e18)
+                if s > best_s:
+                    best_s = s; best_a = a
+
+            if best_a and can_inc:
+                for a, cost in acts:
+                    rem[a] -= cost
+                cap.add(tgt); acc_v += pvals[idx]; acc_comm.append(p)
+
+            node = node.ch[best_a]
+            path.append(node)
+            idx += 1
+
+        # ── Rollout & backprop ───────────────────────────────────────
+        total = _rollout(idx, rem, cap, acc_v, acc_comm)
+        for nd in path:
+            nd.n += 1
+            nd.v += total
+
+    comm     = best['comm']
+    unfunded = [p for p in valid if p not in comm]
+    return comm, best['rem'], best['cap'], unfunded
+
+
 # ── Redistribute (TRANSFER) ─────────────────────────────────────────────
 
-def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights):
+def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights,
+                 zone_lookup=None):
     """
     Для каждой P с остатком ships > floor — оценить TRANSFER в соседние Q
     и выпустить план если score выше порога.
 
     Score для P → Q:
-        score = max(0, stress[Q] - stress[P]) · ships / (1 + eta · eta_pen)
+        gradient = stress_grad + zone_urgency_weight · (urgency[Q] - urgency[P])
+        score    = gradient · ships / (1 + eta · eta_pen)
     где ships ≤ remaining[P] - floor, ограниченное deficit_Q + buffer.
+
+    zone_lookup: dict pid → zone-метка (из zones.py). Если задан — градиент
+    включает разницу зональной срочности (ZONE_URGENCY): корабли rear/bastion
+    автоматически тянутся к frontline/contested даже при нулевом attack-stress.
+    Если не задан — поведение идентично старому (только stress-градиент).
 
     deficit_Q собирается из unfunded actions: если Q был supplier'ом или
     attacker'ом в плане который не прошёл из-за нехватки ships у Q —
@@ -3323,10 +3809,28 @@ def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights
             d = max(0.0, cost - remaining.get(aid, 0))
             deficit[aid] = max(deficit.get(aid, 0.0), d)
 
+    # ── Проактивный гарнизонный дефицит ──────────────────────────────────
+    # Для frontline/contested-планет без unfunded-события: задаём целевой
+    # минимальный гарнизон = production × garrison_per_prod. Если планета
+    # ниже этого порога — считаем разницу «дефицитом» и направляем трансфер.
+    # Это закрывает случай «нет конкретного события, но планета слабая».
+    _gprod = float(getattr(weights, 'garrison_per_prod', 0.0))
+    if _gprod > 0 and zone_lookup is not None:
+        for Q in ours:
+            zone = zone_lookup.get(Q.id, 'mid')
+            if zone in ('frontline', 'contested'):
+                target_garrison = _gprod * float(Q.production or 1)
+                garrison_gap    = max(0.0, target_garrison - float(Q.ships))
+                if garrison_gap > deficit.get(Q.id, 0.0):
+                    deficit[Q.id] = garrison_gap
+
     transfer_plans = []
     by_id = {p.id: p for p in ours}
+    _max_tr = int(getattr(weights, 'max_transfers_per_turn', 2))
 
     for P in ours:
+        if len(transfer_plans) >= _max_tr:
+            break
         free = remaining.get(P.id, 0) - floor
         if free <= 0:
             continue
@@ -3343,7 +3847,13 @@ def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights
             if eta_pq > horizon:
                 continue
 
-            gradient = stress.get(Q.id, 0.0) - stress.get(P.id, 0.0)
+            stress_grad = stress.get(Q.id, 0.0) - stress.get(P.id, 0.0)
+            if zone_lookup is not None:
+                urg_q    = ZONE_URGENCY.get(zone_lookup.get(Q.id, 'mid'), _ZONE_URG_DEFAULT)
+                urg_p    = ZONE_URGENCY.get(zone_lookup.get(P.id, 'mid'), _ZONE_URG_DEFAULT)
+                gradient = stress_grad + weights.zone_urgency_weight * (urg_q - urg_p)
+            else:
+                gradient = stress_grad
             if gradient <= 0:
                 continue
             # сколько имеет смысл отправить
@@ -3399,7 +3909,7 @@ def redistribute(state, remaining, stress, neigh_stress, unfunded, ours, weights
 # ── Главная точка входа ────────────────────────────────────────────────
 
 def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
-               horizon=ATTACK_HORIZON, max_targets=None, deadline=None):
+               zone_lookup=None, horizon=ATTACK_HORIZON, max_targets=None, deadline=None):
     """
     Полный цикл AgentSwarm: candidates → stress → auction → redistribute.
 
@@ -3412,7 +3922,6 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
       plans  — финальный список планов
       debug  — словарь метаинформации (stress, остатки, разбивка)
     """
-    import time as _t
     if weights is None:
         weights = DEFAULT_WEIGHTS
 
@@ -3420,6 +3929,47 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
     ours = [p for p in raw if p.owner == player]
     if not ours or not targets:
         return [], {'reason': 'no ours or no targets'}
+
+    # ── Opponent strength lookup (для opp_strength_weight) ────────────────
+    # Считаем силу каждого противника: ships + prod_factor * production.
+    # Нормализуем к среднему среди врагов → rel_strength = 1.0 означает средний враг.
+    # opp_bonus в _action_value = W * (1.0 - rel_strength) * eta_bonus:
+    #   rel < 1 (слабый) → bonus > 0 (атакуем охотнее)
+    #   rel > 1 (сильный) → bonus < 0 (осторожнее)
+    opp_strength_lookup: dict = {}
+    _opp_w = getattr(weights, 'opp_strength_weight', 0.0)
+    if _opp_w != 0.0:
+        prod_factor = getattr(weights, 'opp_prod_factor', 5.0)
+        # Суммируем корабли и производство по owner (планеты + флоты)
+        opp_ships: dict = {}
+        opp_prod:  dict = {}
+        for p in raw:
+            own = p.owner
+            if own == player or own < 0:
+                continue
+            opp_ships[own] = opp_ships.get(own, 0.0) + float(getattr(p, 'ships', 0) or 0)
+            opp_prod[own]  = opp_prod.get(own,  0.0) + float(getattr(p, 'production', 0) or 0)
+        # Флоты тоже учитываем
+        for f in getattr(state, 'fleets', []):
+            own = getattr(f, 'owner', -1)
+            if own == player or own < 0:
+                continue
+            opp_ships[own] = opp_ships.get(own, 0.0) + float(getattr(f, 'ships', 0) or 0)
+        # Суммарная сила каждого врага
+        opp_ids = set(opp_ships) | set(opp_prod)
+        if opp_ids:
+            strength = {oid: opp_ships.get(oid, 0.0) + prod_factor * opp_prod.get(oid, 0.0)
+                        for oid in opp_ids}
+            mean_s = sum(strength.values()) / len(strength)
+            if mean_s > 0:
+                rel = {oid: s / mean_s for oid, s in strength.items()}
+            else:
+                rel = {oid: 1.0 for oid in opp_ids}
+            # Строим lookup: tgt_id (planet id) → rel_strength его owner'а
+            for p in raw:
+                own = p.owner
+                if own in rel:
+                    opp_strength_lookup[p.id] = rel[own]
 
     # cap по числу целей (на ход с 30+ нейтралами это спасает от per-step timeout)
     if max_targets is not None and len(targets) > max_targets:
@@ -3430,23 +3980,63 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
 
     # 0. Все боевые candidates от существующего движка attacks.py
     risk = int(getattr(weights, 'risk_tolerance', 0))
+    min_dir_att = int(getattr(weights, 'min_direct_att', 8))
+
+    # Кеш заблокированных солнцем пар (src_id, tgt_id) — строится один раз
+    # на весь ход. Устраняет >1000 бесполезных aim_verify_failed за матч:
+    # _seg_blocked использует SUN_SAFETY_PIPE (консервативный радиус), поэтому
+    # маршруты из кеша никогда не пройдут _aim_and_verify в agent.py.
+    blocked_pairs: set = set()
+    for _src in ours:
+        for _tgt in targets:
+            if _seg_blocked(_src, _tgt):
+                blocked_pairs.add((_src.id, _tgt.id))
+
     candidates = []
     for tgt in targets:
         if deadline is not None and _t.perf_counter() > deadline:
             break  # бюджет исчерпан, играем что собрали
-        plans = all_plans(state, tgt, ours, horizon=horizon, player=player, risk=risk)
+        # Только планеты с незаблокированным прямым маршрутом до цели
+        reachable = [p for p in ours if (p.id, tgt.id) not in blocked_pairs]
+        if not reachable:
+            continue
+        plans = all_plans(state, tgt, reachable, horizon=horizon, player=player, risk=risk,
+                          neutral_garrison=int(getattr(weights, 'neutral_garrison', 0)))
         for pl in plans:
-            if pl.get('success') and _plan_total_ships(pl) >= MIN_USEFUL_STRIKE:
-                candidates.append(pl)
+            if not (pl.get('success') and _plan_total_ships(pl) >= MIN_USEFUL_STRIKE):
+                continue
+            # Фильтр мелких direct-атак: x_att < порога против крупной цели —
+            # флот всё равно не победит и только теряется. Нейтралов с малым
+            # гарнизоном (x_tgt < порога) не трогаем — там 6 кор. нормально.
+            if pl.get('mode') == 'direct':
+                x_att = int(pl.get('x_att', 0))
+                x_tgt = float(pl.get('x_tgt', 0))
+                if x_att < min_dir_att and x_tgt >= min_dir_att:
+                    continue
+            candidates.append(pl)
 
     # 1. Stress / neighbor_stress (для отладки и transfer-scoring)
     stress = compute_stress(candidates, ours, weights)
     neigh  = neighbor_stress(stress, ours)
 
-    # 2. Аукцион
-    committed, remaining, captured, unfunded = auction(
-        candidates, ours, weights, priority_lookup=priority_lookup,
-    )
+    # 2. Аукцион: жадный или UCT-MCTS
+    if getattr(weights, 'use_mcts_auction', False):
+        # Выделяем до 30% оставшегося бюджета на MCTS
+        mcts_budget = 0.05
+        if deadline is not None:
+            rem_time    = deadline - _t.perf_counter()
+            mcts_budget = max(0.02, rem_time * 0.30)
+        committed, remaining, captured, unfunded = auction_mcts(
+            candidates, ours, weights, priority_lookup=priority_lookup,
+            opp_strength_lookup=opp_strength_lookup,
+            time_budget=mcts_budget,
+            c_uct=getattr(weights, 'mcts_c_uct', 1.414),
+        )
+    else:
+        committed, remaining, captured, unfunded = auction(
+            candidates, ours, weights, priority_lookup=priority_lookup,
+            opp_strength_lookup=opp_strength_lookup,
+        )
 
     # 3. Redistribute остатки в TRANSFER.
     #    По умолчанию ВЫКЛЮЧЕН — supply для атак идёт через pipeline/multi
@@ -3456,6 +4046,7 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
     if getattr(weights, 'enable_redistribute', False):
         transfers = redistribute(
             state, remaining, stress, neigh, unfunded, ours, weights,
+            zone_lookup=zone_lookup,
         )
     else:
         transfers = []
@@ -3477,8 +4068,697 @@ def swarm_plan(state, player, targets, weights=None, priority_lookup=None,
 
 __all__ = [
     'SwarmWeights', 'DEFAULT_WEIGHTS',
+    'ZONE_URGENCY',
     'compute_stress', 'neighbor_stress',
-    'auction', 'redistribute', 'swarm_plan',
+    'auction', 'auction_mcts', 'redistribute', 'swarm_plan',
+]
+
+# ╔══════════════════════════════════════════════════╗
+# ║  context.py                                    ║
+# ╚══════════════════════════════════════════════════╝
+
+"""
+context.py — Game Understanding Layer (GUL).
+
+Глобальное «понимание игры» вычисляется один раз в начале хода и
+раздаётся всем cell-decisions как контекст для модулирования action-value.
+
+4 области:
+  1. phase           — стадия игры (early/mid/late/endgame).
+  2. stance          — стратегическая поза (expansion/attrition/consolidation/desperate).
+                       + анализ рельефа из ships (центр масс, разделение,
+                       dominance balance по grid).
+  3. pressure_field  — для каждой планеты значение поля Σ sign·ships/dist²
+                       и роль (deep_rear/rear/frontline/forward/isolated).
+  4. opponent_intent — упрощённая ToM: passive/expanding/aggressive/
+                       preparing_attack по флотам противника.
+
+Использование:
+    ctx = compute_context(state, player)
+    # ctx.phase, ctx.stance, ctx.field_at[pid], ctx.opponent_intent, ...
+"""
+
+import math
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
+
+NEUTRAL = -1
+
+
+# ── Параметры (порог-константы; легко крутить) ──────────────────────────
+
+# Phase
+PHASE_EARLY_PROGRESS = 0.30
+PHASE_MID_PROGRESS   = 0.70
+
+# Stance
+STANCE_DESPERATE_RATIO    = 0.35   # ships_ratio < этого → desperate
+STANCE_CONSOLIDATION_RATIO = 0.65  # ships_ratio > И нет нейтралов → consolidation
+STANCE_EXPANSION_NEUTRAL_FRAC = 0.5   # > половины нейтралов осталось → expansion
+
+# Pressure field
+FIELD_SOFTEN     = 5.0    # в знаменателе чтобы избежать singularity на самой планете
+FIELD_HIGH       = 0.30   # порог field-value для роли deep_rear/isolated
+FIELD_MID        = 0.05   # порог для rear/forward
+GRID_STEP        = 20     # для оценки dominance_balance (5×5 = 25 точек)
+
+# Opponent intent
+ENEMY_PASSIVE_SHIPS  = 30   # < этого ships у врага → passive
+INTENT_ANGLE_TOL     = 0.30 # рад: насколько угол флота должен совпадать с направлением на цель
+
+
+# ── Структура контекста ─────────────────────────────────────────────────
+
+@dataclass
+class GameContext:
+    """Глобальное состояние игры на текущий ход. Передаётся в cell-decisions."""
+    # — Phase —
+    phase: str = 'mid'              # 'early' | 'mid' | 'late' | 'endgame'
+    phase_progress: float = 0.0     # 0..1: захвачено vs нейтралов от начала
+    total_ships: int = 0            # все ships на планетах + в флотах
+
+    # — Stance —
+    stance: str = 'attrition'       # 'expansion'|'attrition'|'consolidation'|'desperate'
+    prod_ratio: float = 1.0         # our_prod / enemy_prod (1.0 = паритет)
+    ships_ratio: float = 0.5        # our / (our+enemy) — без нейтралов
+
+    # Ship terrain (из «рельефа»)
+    our_com:        Tuple[float, float] = (50.0, 50.0)   # центр масс наших (взвешен по ships)
+    enemy_com:      Tuple[float, float] = (50.0, 50.0)
+    com_separation: float = 0.0     # расстояние между центрами
+    dominance_balance: float = 0.0  # (positive_grid_cells - negative) / total — диагностика «кто контролирует пространство»
+
+    # — Pressure field —
+    field_at: Dict[int, float] = field(default_factory=dict)   # pid → field-value (>0 наше, <0 чужое)
+    role_of:  Dict[int, str]   = field(default_factory=dict)   # pid → 'deep_rear'/'rear'/'frontline'/'forward'/'isolated'
+
+    # — Opponent intent —
+    opponent_intent: str = 'unknown'                           # 'passive'|'expanding'|'aggressive'|'preparing_attack'|'idle'
+    enemy_internal_transfers: List[Tuple[int, int]] = field(default_factory=list)  # (from_pid, to_pid) — флоты enemy→enemy
+    threatened_planets: List[int] = field(default_factory=list)                    # вражеские pid'ы куда летит supply (готовятся стрелять)
+
+
+# ── Вспомогательные ─────────────────────────────────────────────────────
+
+def _com(planets):
+    """Центр масс взвешенный по ships. Если у всех 0 ships — берём геометрический."""
+    w = sum(max(0, p.ships) for p in planets)
+    if w <= 0:
+        if not planets:
+            return (50.0, 50.0)
+        cx = sum(p.x for p in planets) / len(planets)
+        cy = sum(p.y for p in planets) / len(planets)
+        return (cx, cy)
+    cx = sum(p.x * max(0, p.ships) for p in planets) / w
+    cy = sum(p.y * max(0, p.ships) for p in planets) / w
+    return (cx, cy)
+
+
+def _field_value(x, y, raw, player, exclude_id=None):
+    """Σ sign · ships / (dist² + soften²). + наши, − чужие, нейтралы игнор."""
+    s = 0.0
+    sof2 = FIELD_SOFTEN ** 2
+    for p in raw:
+        if exclude_id == p.id or p.owner == NEUTRAL:
+            continue
+        sign = 1.0 if p.owner == player else -1.0
+        d2 = (x - p.x) ** 2 + (y - p.y) ** 2 + sof2
+        s += sign * max(0, p.ships) / d2
+    return s
+
+
+def _classify_role(field_v):
+    """field-value → роль клетки в общем рельефе."""
+    if field_v >  FIELD_HIGH: return 'deep_rear'
+    if field_v >  FIELD_MID:  return 'rear'
+    if field_v > -FIELD_MID:  return 'frontline'
+    if field_v > -FIELD_HIGH: return 'forward'
+    return 'isolated'
+
+
+def _fleet_target(f, raw):
+    """К какой планете летит флот (по углу с допуском). None если не ясно."""
+    best_pid, best_d = None, float('inf')
+    for p in raw:
+        ax = math.atan2(p.y - f.y, p.x - f.x)
+        diff = abs(((ax - f.angle + math.pi) % (2 * math.pi)) - math.pi)
+        if diff > INTENT_ANGLE_TOL:
+            continue
+        d = math.hypot(p.x - f.x, p.y - f.y)
+        if d < best_d:
+            best_d = d
+            best_pid = p.id
+    return best_pid
+
+
+# ── Главный entry point ─────────────────────────────────────────────────
+
+def compute_context(state, player) -> GameContext:
+    """Собирает GameContext из state. Дешёво (~O(n_planets² + n_fleets·n_planets))."""
+    ctx = GameContext()
+    raw = list(getattr(state, 'raw_planets', state.planets))
+    fleets = list(getattr(state, 'fleets', []))
+
+    ours    = [p for p in raw if p.owner == player]
+    enemy   = [p for p in raw if p.owner not in (NEUTRAL, player)]
+    neutral = [p for p in raw if p.owner == NEUTRAL]
+
+    # Initial neutrals — оценка, чтобы знать сколько было «в начале»
+    initial_planets = []
+    init_dict = getattr(state, '_initial_planets', None)
+    if init_dict is not None:
+        try:
+            initial_planets = list(init_dict.values())
+        except Exception:
+            initial_planets = list(init_dict)
+    if not initial_planets:
+        initial_planets = list(getattr(state, 'initial_planets', []) or raw)
+    initial_neutral = max(1, sum(1 for p in initial_planets if p.owner == NEUTRAL))
+
+    # ─────────────────────────────────────────────────
+    # 1. PHASE
+    # ─────────────────────────────────────────────────
+    ctx.phase_progress = round(1.0 - len(neutral) / initial_neutral, 3)
+
+    fleet_ours  = sum(f.ships for f in fleets if f.owner == player)
+    fleet_enemy = sum(f.ships for f in fleets if f.owner not in (NEUTRAL, player))
+    our_ships   = sum(p.ships for p in ours) + fleet_ours
+    enemy_ships = sum(p.ships for p in enemy) + fleet_enemy
+    ctx.total_ships = our_ships + enemy_ships
+
+    if   ctx.phase_progress < PHASE_EARLY_PROGRESS: ctx.phase = 'early'
+    elif ctx.phase_progress < PHASE_MID_PROGRESS:   ctx.phase = 'mid'
+    elif neutral:                                   ctx.phase = 'late'
+    else:                                           ctx.phase = 'endgame'
+
+    # ─────────────────────────────────────────────────
+    # 2. STANCE + ship terrain
+    # ─────────────────────────────────────────────────
+    our_prod   = sum(p.production for p in ours)
+    enemy_prod = sum(p.production for p in enemy)
+    ctx.prod_ratio  = round(our_prod / max(1, enemy_prod), 3)
+    ctx.ships_ratio = round(our_ships / max(1, our_ships + enemy_ships), 3)
+
+    ctx.our_com   = _com(ours)
+    ctx.enemy_com = _com(enemy)
+    ctx.com_separation = round(math.hypot(
+        ctx.our_com[0] - ctx.enemy_com[0],
+        ctx.our_com[1] - ctx.enemy_com[1]
+    ), 2)
+
+    # Stance (приоритет: desperate > consolidation > expansion > attrition)
+    if ctx.ships_ratio < STANCE_DESPERATE_RATIO:
+        ctx.stance = 'desperate'
+    elif ctx.ships_ratio > STANCE_CONSOLIDATION_RATIO and not neutral:
+        ctx.stance = 'consolidation'
+    elif len(neutral) > STANCE_EXPANSION_NEUTRAL_FRAC * initial_neutral:
+        ctx.stance = 'expansion'
+    else:
+        ctx.stance = 'attrition'
+
+    # ─────────────────────────────────────────────────
+    # 3. PRESSURE FIELD
+    # ─────────────────────────────────────────────────
+    # Field-value на каждой планете (исключая саму себя из суммы)
+    for p in raw:
+        v = _field_value(p.x, p.y, raw, player, exclude_id=p.id)
+        ctx.field_at[p.id] = round(v, 4)
+        ctx.role_of[p.id]  = _classify_role(v)
+
+    # dominance_balance: 5x5 grid через всю карту
+    pos = neg = 0
+    for x in range(GRID_STEP // 2, 100, GRID_STEP):
+        for y in range(GRID_STEP // 2, 100, GRID_STEP):
+            v = _field_value(x, y, raw, player)
+            if   v >  FIELD_MID: pos += 1
+            elif v < -FIELD_MID: neg += 1
+    total = max(1, pos + neg)
+    ctx.dominance_balance = round((pos - neg) / total, 3)
+
+    # ─────────────────────────────────────────────────
+    # 4. OPPONENT INTENT
+    # ─────────────────────────────────────────────────
+    enemy_pids = {p.id for p in enemy}
+    our_pids   = {p.id for p in ours}
+
+    enemy_fleets = [f for f in fleets if f.owner not in (NEUTRAL, player)]
+    n_enemy_in_flight = len(enemy_fleets)
+
+    transfers = []                  # enemy → enemy (внутренние)
+    threatened = []                 # принимающие (готовятся стрелять)
+    toward_us = 0                   # летит к нашим
+    for f in enemy_fleets:
+        tgt = _fleet_target(f, raw)
+        if tgt is None:
+            continue
+        if tgt in enemy_pids:
+            transfers.append((int(getattr(f, 'from_pid', -1)), int(tgt)))
+            threatened.append(int(tgt))
+        elif tgt in our_pids:
+            toward_us += 1
+
+    ctx.enemy_internal_transfers = transfers
+    ctx.threatened_planets = sorted(set(threatened))
+
+    if enemy_ships < ENEMY_PASSIVE_SHIPS and n_enemy_in_flight == 0:
+        ctx.opponent_intent = 'passive'
+    elif transfers:
+        ctx.opponent_intent = 'preparing_attack'
+    elif n_enemy_in_flight == 0:
+        ctx.opponent_intent = 'idle'
+    elif toward_us > n_enemy_in_flight * 0.5:
+        ctx.opponent_intent = 'aggressive'
+    else:
+        ctx.opponent_intent = 'expanding'
+
+    return ctx
+
+
+def context_summary(ctx: GameContext) -> str:
+    """Однострочная сводка для лога."""
+    return (f"phase={ctx.phase}({ctx.phase_progress:.2f}) "
+            f"stance={ctx.stance} ships={ctx.ships_ratio:.2f} prod={ctx.prod_ratio:.2f} "
+            f"COM_sep={ctx.com_separation:.0f} dom={ctx.dominance_balance:+.2f} "
+            f"opp={ctx.opponent_intent}"
+            + (f" threats={ctx.threatened_planets}" if ctx.threatened_planets else "")
+            )
+
+
+__all__ = ['GameContext', 'compute_context', 'context_summary']
+
+# ╔══════════════════════════════════════════════════╗
+# ║  opponent_presets.py                           ║
+# ╚══════════════════════════════════════════════════╝
+
+"""
+opponent_presets.py -- Opponent presets based on SwarmWeights grid-search winners.
+
+Each preset is a named SwarmWeights configuration from eval_8winners.csv.
+Action prediction uses the same scoring logic as swarm._action_value but
+simplified (no zones needed) so it runs in microseconds per call.
+
+Score(src, tgt, W) =
+    margin
+    + W.eta_bonus / eta^(1 - W.distance_comfort)
+    + W.ships_weight * log1p(surplus)
+    + W.activity_weight * max(0, surplus - W.idle_floor)
+    + W.priority_bonus * tgt.production
+
+Public interface:
+  PRESETS              : dict {name: SwarmWeights}
+  get_preset_actions(preset_name, state, opp_id) -> List[dict]
+"""
+
+import math
+from typing import List, Dict
+
+
+# ── Preset definitions (from eval_8winners_20260502_050430.csv) ────────────
+# Columns: activity_weight, idle_floor, distance_comfort, risk_tolerance,
+#          ships_weight, eta_bonus, priority_bonus, stress_top_k, stress_gamma
+
+PRESETS: Dict[str, SwarmWeights] = {
+    # default SwarmWeights (baseline, winrate=0.38)
+    'default': DEFAULT_WEIGHTS,
+
+    # winner_seed19  winrate=0.45
+    'w_seed19': SwarmWeights(
+        activity_weight=2.14, idle_floor=38,  distance_comfort=0.28,
+        risk_tolerance=0,     ships_weight=0.57, eta_bonus=51.96,
+        priority_bonus=5.63,  stress_top_k=5,  stress_gamma=1.27,
+    ),
+
+    # winner_seed20  winrate=0.46
+    'w_seed20': SwarmWeights(
+        activity_weight=1.29, idle_floor=40,  distance_comfort=0.18,
+        risk_tolerance=2,     ships_weight=1.37, eta_bonus=16.66,
+        priority_bonus=2.84,  stress_top_k=3,  stress_gamma=1.50,
+    ),
+
+    # winner_seed39  winrate=0.46
+    'w_seed39': SwarmWeights(
+        activity_weight=2.79, idle_floor=37,  distance_comfort=0.19,
+        risk_tolerance=1,     ships_weight=5.76, eta_bonus=14.33,
+        priority_bonus=0.37,  stress_top_k=6,  stress_gamma=1.29,
+    ),
+
+    # winner_seed22  winrate=0.37
+    'w_seed22': SwarmWeights(
+        activity_weight=3.18, idle_floor=16,  distance_comfort=0.21,
+        risk_tolerance=0,     ships_weight=4.40, eta_bonus=39.09,
+        priority_bonus=1.84,  stress_top_k=5,  stress_gamma=1.34,
+    ),
+}
+
+# ── Scoring parameters ─────────────────────────────────────────────────────
+RESERVE_RATIO = 1.5    # keep production * ratio on source (mirror action_space.py)
+MIN_SURPLUS   = 3      # minimum surplus to consider launching
+MAX_ACTIONS   = 3      # max actions per preset
+SPEED_SAMPLE  = 20     # reference ship count for speed estimate
+
+
+def _surplus(p) -> int:
+    return max(0, int(p.ships) - int(p.production * RESERVE_RATIO))
+
+
+def _eta_est(src, tgt, ships: int) -> float:
+    """Rough ETA: straight-line distance / fleet speed."""
+    spd = fleet_speed_correct(max(1, ships))
+    d   = math.hypot(tgt.x - src.x, tgt.y - src.y)
+    d   = max(d - src.radius - tgt.radius, 1.0)
+    return max(1.0, d / max(spd, 1e-6))
+
+
+def _overkill(tgt, risk_tolerance: int) -> int:
+    """Minimum overkill buffer mirroring SAFETY_OVERKILL logic.
+
+    risk_tolerance reduces the buffer (more aggressive, risker attacks).
+    0 = conservative (+2 for owned, +1 for neutral)
+    1 = slightly risky (+1 / +0)
+    2+ = very aggressive (just > defender)
+    """
+    if tgt.owner == NEUTRAL_OWNER:
+        return max(0, 1 - risk_tolerance)
+    return max(0, 2 - risk_tolerance)
+
+
+def _score(src, tgt, surplus: int, W: SwarmWeights) -> float:
+    """Simplified action_value for (src->tgt) under SwarmWeights W."""
+    ok      = _overkill(tgt, W.risk_tolerance)
+    margin  = surplus - float(tgt.ships) - ok
+    eta     = _eta_est(src, tgt, surplus)
+    comfort = max(0.0, min(1.0, W.distance_comfort))
+    eta_term      = W.eta_bonus / (eta ** (1.0 - comfort))
+    ships_term    = W.ships_weight * math.log1p(max(0, surplus))
+    activity_term = W.activity_weight * max(0, surplus - W.idle_floor)
+    prio_term     = W.priority_bonus * float(tgt.production)
+    return margin + eta_term + ships_term + activity_term + prio_term
+
+
+def _action_type(tgt, opp_id: int) -> str:
+    if tgt.owner == opp_id:
+        return 'reinforce'
+    if tgt.owner == NEUTRAL_OWNER:
+        return 'capture_neutral'
+    return 'attack_enemy'
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# Core generator
+# ══════════════════════════════════════════════════════════════════════════
+
+def get_preset_actions(preset_name: str, state, opp_id: int) -> List[dict]:
+    """Predict opponent actions under the given preset (SwarmWeights).
+
+    Algorithm:
+    1. Gather opponent planets with surplus ships.
+    2. For each (src, tgt) pair not blocked by sun, compute score.
+    3. Greedily pick top-MAX_ACTIONS pairs (each target used at most once).
+
+    Returns list of dicts: {from_id, target_id, ships, action_type}.
+    """
+    W = PRESETS.get(preset_name)
+    if W is None:
+        return []
+
+    try:
+        raw_planets = getattr(state, 'raw_planets', state.planets)
+        all_planets = state.planets
+
+        srcs = [(p, _surplus(p)) for p in raw_planets
+                if p.owner == opp_id and _surplus(p) >= MIN_SURPLUS]
+        if not srcs:
+            return []
+
+        # Candidates: all scored (src, tgt, score) pairs
+        scored = []
+        for src, surp in srcs:
+            for tgt in all_planets:
+                if tgt.id == src.id:
+                    continue
+                if segment_hits_sun(src.x, src.y, tgt.x, tgt.y, safety=SUN_SAFETY):
+                    continue
+                ok      = _overkill(tgt, W.risk_tolerance)
+                needed  = int(tgt.ships) + ok
+                send    = surp if tgt.owner == opp_id else min(surp, max(MIN_SURPLUS, needed))
+                if send < MIN_SURPLUS:
+                    continue
+                # For capture: need at least needed ships
+                if tgt.owner != opp_id and surp < needed:
+                    continue
+                sc = _score(src, tgt, surp, W)
+                scored.append((sc, src, tgt, send))
+
+        if not scored:
+            return []
+
+        scored.sort(key=lambda x: -x[0])
+
+        # Greedy pick: each (src, tgt) used at most once
+        used_src = set()
+        used_tgt = set()
+        actions  = []
+        for sc, src, tgt, send in scored:
+            if len(actions) >= MAX_ACTIONS:
+                break
+            if src.id in used_src or tgt.id in used_tgt:
+                continue
+            used_src.add(src.id)
+            used_tgt.add(tgt.id)
+            actions.append({
+                'from_id':     src.id,
+                'target_id':   tgt.id,
+                'ships':       max(1, int(send)),
+                'action_type': _action_type(tgt, opp_id),
+            })
+
+        return actions
+
+    except Exception:
+        return []
+
+
+__all__ = ['PRESETS', 'get_preset_actions', 'MAX_ACTIONS']
+
+# ╔══════════════════════════════════════════════════╗
+# ║  opponent_model_bayesian.py                    ║
+# ╚══════════════════════════════════════════════════╝
+
+"""
+opponent_model_bayesian.py -- Bayesian opponent behaviour model with analytics.
+
+ANALYTICS_MODE (module-level bool, default False):
+  When False  -- zero overhead: no history stored, no log/entropy computed.
+  When True   -- full metrics collected in self.analytics_history each turn.
+  Set from agent.py: import opponent_model_bayesian; opponent_model_bayesian.ANALYTICS_MODE = True
+
+Public interface:
+  ANALYTICS_MODE           : bool  (set before creating model instance)
+  class OpponentModelBayesian
+    .update(observed_actions, state, opp_id, step=0) -> dict|None
+    .get_expected_actions(state, opp_id, threshold=0.05) -> List[dict]
+    .top_preset() -> str
+    .summary()   -> str
+    .priors      : dict {preset_name: probability}
+    ._history    : List[str]          -- top preset each turn (always)
+    .analytics_history : List[dict]   -- full metrics (only if ANALYTICS_MODE)
+"""
+
+import math
+from typing import List, Dict, Optional
+
+
+# ── Module-level analytics flag ────────────────────────────────────────────
+# Set to True from agent.py when _dbg.enabled() is True.
+# All analytics code is guarded by `if ANALYTICS_MODE:` → zero cost in battle.
+ANALYTICS_MODE: bool = False
+
+# ── Parameters ─────────────────────────────────────────────────────────────
+DEFAULT_TEMPERATURE = 1.5
+MIN_PROB            = 0.02   # probability floor per preset
+MAX_VIRTUAL_FLEETS  = 3      # cap on virtual fleets per turn
+
+
+class OpponentModelBayesian:
+    """Bayesian distribution over opponent strategy presets.
+
+    Fast path (ANALYTICS_MODE=False):
+        Likelihoods computed, priors updated, top preset appended to _history.
+        No log/entropy/history dict created.
+
+    Full path (ANALYTICS_MODE=True):
+        Additionally computes surprise, entropy, match_count, stores full
+        metrics dict in analytics_history for post-game analysis.
+    """
+
+    def __init__(self, temperature: float = DEFAULT_TEMPERATURE):
+        n = len(PRESETS)
+        self.priors: Dict[str, float] = {k: 1.0 / n for k in PRESETS}
+        self.temperature = temperature
+        self._history: List[str] = []          # top preset name each turn (always)
+        self.analytics_history: List[dict] = []  # full metrics (ANALYTICS_MODE only)
+
+    # ── Bayesian update ────────────────────────────────────────────────────
+
+    def update(self, observed_actions: List[dict],
+               state, opp_id: int,
+               step: int = 0) -> Optional[dict]:
+        """Update priors given observed opponent actions.
+
+        Args:
+            observed_actions: list of {from_id, target_id, ships, action_type}
+            state:            GameState when opponent acted (prev turn raw state)
+            opp_id:           opponent player id
+            step:             current game step (for analytics)
+
+        Returns:
+            metrics dict if ANALYTICS_MODE else None.
+        """
+        # ── No observed actions: opponent was idle ──────────────────────────
+        if not observed_actions:
+            top = self.top_preset()
+            self._history.append(top)
+            if ANALYTICS_MODE:
+                entropy = -sum(p * math.log(max(p, 1e-12))
+                               for p in self.priors.values())
+                rec = {
+                    'step': step,
+                    'surprise': 0.0,        # idle = not surprising
+                    'entropy': entropy,
+                    'top_preset': top,
+                    'top_prob': self.priors[top],
+                    'n_opponent_actions': 0,
+                    'match_count': 0,
+                    'priors': dict(self.priors),
+                }
+                self.analytics_history.append(rec)
+                return rec
+            return None
+
+        # ── Compute likelihoods ────────────────────────────────────────────
+        n_obs      = max(1, len(observed_actions))
+        obs_pairs  = {(a['from_id'], a['target_id']) for a in observed_actions}
+
+        likelihoods: Dict[str, float] = {}
+        pred_cache:  Dict[str, list]  = {}
+
+        for preset_name in self.priors:
+            predicted = get_preset_actions(preset_name, state, opp_id)
+            pred_cache[preset_name] = predicted
+
+            if not predicted:
+                likelihoods[preset_name] = 1.0   # neutral: no prediction → no update
+            else:
+                pred_pairs = {(p['from_id'], p['target_id']) for p in predicted}
+                pred_types = {p['action_type'] for p in predicted}
+
+                matched_exact = sum(
+                    1 for a in observed_actions
+                    if (a['from_id'], a['target_id']) in pred_pairs
+                )
+                matched_type = sum(
+                    1 for a in observed_actions
+                    if a['action_type'] in pred_types
+                )
+                # Exact match weighs 2x type match
+                score = (2 * matched_exact + matched_type) / (3 * n_obs)
+                likelihoods[preset_name] = math.exp(self.temperature * score)
+
+        # ── Analytics (pre-update) ─────────────────────────────────────────
+        if ANALYTICS_MODE:
+            # P(obs) = marginal likelihood (evidence term in Bayes rule)
+            p_obs    = sum(self.priors[k] * likelihoods[k] for k in self.priors)
+            surprise = -math.log(max(p_obs, 1e-12))
+
+        # ── Bayesian update ────────────────────────────────────────────────
+        new_priors = {k: self.priors[k] * likelihoods[k] for k in self.priors}
+        total = sum(new_priors.values())
+
+        if total < 1e-12:
+            n = len(PRESETS)
+            self.priors = {k: 1.0 / n for k in PRESETS}
+        else:
+            # Apply floor and re-normalise
+            floored = {k: max(MIN_PROB, v / total) for k, v in new_priors.items()}
+            total2  = sum(floored.values())
+            self.priors = {k: v / total2 for k, v in floored.items()}
+
+        top = self.top_preset()
+        self._history.append(top)
+
+        # ── Analytics (post-update) ────────────────────────────────────────
+        if ANALYTICS_MODE:
+            entropy = -sum(p * math.log(max(p, 1e-12))
+                           for p in self.priors.values())
+
+            top_pairs = {(p['from_id'], p['target_id'])
+                         for p in pred_cache.get(top, [])}
+            match_count = sum(
+                1 for a in observed_actions
+                if (a['from_id'], a['target_id']) in top_pairs
+            )
+
+            rec = {
+                'step':               step,
+                'surprise':           surprise,
+                'entropy':            entropy,
+                'top_preset':         top,
+                'top_prob':           self.priors[top],
+                'n_opponent_actions': len(observed_actions),
+                'match_count':        match_count,
+                'priors':             dict(self.priors),
+            }
+            self.analytics_history.append(rec)
+            return rec
+
+        return None
+
+    # ── Query ──────────────────────────────────────────────────────────────
+
+    def get_expected_actions(self, state, opp_id: int,
+                              threshold: float = 0.05) -> List[dict]:
+        """Return expected opponent actions from presets with prob >= threshold.
+
+        Deduplicated by (from_id, target_id); capped at MAX_VIRTUAL_FLEETS.
+        """
+        candidates: List[dict] = []
+        for preset_name, prob in sorted(self.priors.items(),
+                                        key=lambda kv: -kv[1]):
+            if prob < threshold:
+                continue
+            for a in get_preset_actions(preset_name, state, opp_id):
+                candidates.append({**a, '_prob': prob, '_preset': preset_name})
+
+        # Keep highest-prob per (from_id, target_id)
+        seen: Dict[tuple, dict] = {}
+        for a in candidates:
+            key = (a['from_id'], a['target_id'])
+            if key not in seen or a['_prob'] > seen[key]['_prob']:
+                seen[key] = a
+
+        unique = sorted(seen.values(), key=lambda a: (-a['_prob'], -a['ships']))
+        return unique[:MAX_VIRTUAL_FLEETS]
+
+    # ── Info ───────────────────────────────────────────────────────────────
+
+    def top_preset(self) -> str:
+        return max(self.priors, key=lambda k: self.priors[k])
+
+    def summary(self) -> str:
+        parts = [f'{k}={v:.2f}' for k, v in
+                 sorted(self.priors.items(), key=lambda kv: -kv[1])]
+        return '  '.join(parts)
+
+    def dump_analytics(self) -> List[dict]:
+        """Return analytics_history (empty list if ANALYTICS_MODE was False)."""
+        return list(self.analytics_history)
+
+
+__all__ = [
+    'ANALYTICS_MODE',
+    'OpponentModelBayesian',
+    'MAX_VIRTUAL_FLEETS',
+    'DEFAULT_TEMPERATURE',
 ]
 
 # ╔══════════════════════════════════════════════════╗
@@ -3491,6 +4771,11 @@ __all__ = [
 Каждый ход:
   0. Проекция     — project_state резолвит уже летящие флоты (свои+чужие):
                     каждая планета видится в момент последнего прибытия.
+  [РАННЯЯ ИГРА — MCTS]
+  0.5. MCTS       — если step < EARLY_GAME_SWITCH и планет <= EARLY_MAX_PLANETS,
+                    запускаем run_mcts в ПАР (Пространство Адекватных Решений).
+                    Возвращает лучший Action напрямую, минуя зонирование/атаки.
+  [ОБЫЧНАЯ ЛОГИКА]
   1. Зонирование  — compute_zones_from_state определяет зону каждой планеты
   2. Выбор целей  — easy_target / priority_target с лучшим priority
   3. Атаки        — best_attacks подбирает план (direct/multi_sync/pipeline) с
@@ -3503,20 +4788,82 @@ __all__ = [
 """
 
 import math
+import dataclasses as _dc
 import os as _os
 import sys as _sys
 
-import math
 
+# ── MCTS / ПАР (ранняя игра) ──────────────────────────────────────────────
+try:
+    from action_space import generate_actions, generate_opponent_actions
+    from mcts import run_mcts, OpponentModel
+    _MCTS_AVAILABLE = True
+except ImportError as _mcts_import_err:
+    _MCTS_AVAILABLE = False
+
+# ── MCTS параметры (ранняя игра) ─────────────────────────────────────────
+# MCTS включается когда: ход < EARLY_GAME_SWITCH И планет <= EARLY_MAX_PLANETS
+# Чтобы отключить глобально — выставить USE_MCTS = False.
+USE_MCTS             = True
+EARLY_GAME_SWITCH    = 35    # первые N ходов → MCTS (затем обычная логика)
+EARLY_MAX_PLANETS    = 20    # не более M планет на карте → MCTS (защита от больших карт)
+MCTS_TIME_FRACTION   = 0.65  # доля оставшегося бюджета, отдаваемая MCTS
+
+# Режим генерации ПАР: "none" | "v1_plain" | "v2_pair" | "v3_partial" | "v4_hybrid_net"
+# Управляется переменной окружения ORBIT_MCTS_MODE (по умолчанию v1_plain).
+MCTS_MODE = _os.environ.get("ORBIT_MCTS_MODE", "v1_plain")
+
+# Глобальная модель противника (живёт между ходами одного матча).
+# Инициализируется лениво при первом вызове _agent_impl.
+_opponent_model   = None
+_pending_partials = None   # для v3: список PartialAction в полёте
+
+# ── Байесовский предсказатель поведения противника ───────────────────────
+# Включается флагом USE_OPPONENT_PREDICTION.
+# Добавляет виртуальные флоты противника в state_raw перед project_state,
+# что заставляет swarm_plan учитывать ожидаемые атаки при планировании.
+try:
+    _BAYES_AVAILABLE = True
+except ImportError:
+    _BAYES_AVAILABLE = False
+    _opp_bayes_mod   = None
+
+USE_OPPONENT_PREDICTION = True   # выключить → False
+BAYES_THRESHOLD         = 0.05   # минимальный вес пресета для добавления флота
+_VIRTUAL_FLEET_ID_BASE  = -1000  # начало диапазона ID виртуальных флотов
+
+# Состояние между ходами (для детекции новых флотов противника)
+_bayes_model    = None   # OpponentModelBayesian
+_prev_fleet_ids = None   # set[int] — fleet IDs на конец предыдущего хода
+_prev_state_raw = None   # GameState — raw state предыдущего хода (для update)
 
 # ── AgentSwarm switch ─────────────────────────────────────────────────
 # True  → планы строим через swarm_plan (per-planet auction + redistribute)
 # False → старая глобальная логика best_attacks (fallback / A-B сравнение)
-USE_SWARM      = True
-SWARM_WEIGHTS  = DEFAULT_WEIGHTS
+USE_SWARM        = True
+SWARM_WEIGHTS    = DEFAULT_WEIGHTS   # веса для 2-player
+
+# Веса для 4-player FFA — оптимизированы отдельно (tune_4p_sweep1/2).
+# Отличия от 2-player:
+#   zone_urgency_weight=3.0  — сильнее гнать корабли rear→frontline (3 фронта)
+#   neutral_garrison=0       — ng_3 помогал vs 3x sub2 но не vs смешанного состава
+#
+# match_runner4.py переопределяет эти веса через task['weights4'].
+SWARM_WEIGHTS_4P = _dc.replace(DEFAULT_WEIGHTS,
+    zone_urgency_weight  = 4.0,   # sweep1-2: urg4 > urg3 в FFA
+    opp_strength_weight  = 0.5,   # sweep3: pure_osw0.5 лучший (rank=1.600 win=0.400)
+    # garrison=0, neutral_garrison=0 — дефолты DEFAULT_WEIGHTS (оптимальны и в FFA
+    # при наличии opp_strength: opp_bonus компенсирует нужду в гарнизоне)
+)
 
 TARGET_ZONES   = ('easy_target', 'priority_target')
-RESERVE_ON_ATT = 0     # минимум кораблей оставить на атакере
+
+# Кеш зон прошлого хода для [ZONE_FLIP] лога (per-match, сбрасывается на TURN 0)
+_prev_zones: dict = {}  # pid → zone
+RESERVE_ON_ATT = 0     # минимум кораблей оставить на атакере.
+                       # ОБЯЗАН совпадать с attacks.RESERVE_ON_ATT — иначе
+                       # планировщик считает available=att.ships, а исполнитель
+                       # отправляет att.ships-1 → ничья на нейтрале (0 кораблей).
 MIN_FIRE       = 3     # ниже — пуск не имеет смысла
 
 # ── Адаптивная ширина рассмотрения целей ─────────────────────────────
@@ -3554,6 +4901,55 @@ def _resource_ratio(state, player):
     if total <= 0:
         return 0.0
     return our / total
+
+
+def _adapt_swarm_weights(base, ctx, ratio):
+    """Адаптирует SwarmWeights под текущий контекст (возвращает копию).
+
+    Два механизма:
+
+    1. Динамический transfer_floor / transfer_min_ships (исправление #9):
+       Фиксированный floor=20 блокирует все трансферы когда у планет <30 кораблей
+       (free = ships − 20 ≤ 10 < transfer_min_ships=15 → всегда нет).
+       Масштабируем пороги с ratio = our_ships / total:
+         ratio=0.10 → floor≈5,  min_ships≈5
+         ratio=0.25 → floor≈10, min_ships≈8
+         ratio=0.50 → floor≈17, min_ships≈13
+         ratio≥0.80 → floor=20, min_ships=15  (полные пороги)
+
+    2. Desperate mode (исправление #8):
+       Когда stance=desperate (ships_ratio < 0.35) агент терял темп из-за
+       тех же высоких порогов и нулевого risk_tolerance. В desperate:
+         - Гарнизон минимален (floor=5): нечего беречь если проигрываем
+         - risk_tolerance=1: принимаем атаки с margin ≥ −1 (было margin ≥ 0)
+         - transfer_thresh снижен: отправляем даже небольшие подкрепления
+         - transfer_min_ships=5: маленькие партии тоже идут в ход
+    """
+    stance = getattr(ctx, 'stance', 'attrition') if ctx else 'attrition'
+
+    # ── Динамические transfer-пороги (масштаб с ratio) ────────────────────
+    # clamp ratio в [0, 0.4]: выше 40% пороги уже максимальные
+    t = min(1.0, ratio / 0.4)
+    dyn_floor     = max(5.0,  base.transfer_floor      * t)
+    dyn_min_ships = max(5,    int(base.transfer_min_ships * t))
+    dyn_thresh    = max(2.0,  base.transfer_thresh      * t)
+
+    w = _dc.replace(base,
+                    transfer_floor=dyn_floor,
+                    transfer_min_ships=dyn_min_ships,
+                    transfer_thresh=dyn_thresh)
+
+    # ── Desperate override (перекрывает динамику) ─────────────────────────
+    if stance == 'desperate':
+        w = _dc.replace(w,
+                        transfer_floor=5.0,         # минимальный гарнизон
+                        transfer_min_ships=5,        # любое ненулевое подкрепление
+                        transfer_thresh=1.5,         # нижний порог score
+                        risk_tolerance=1,            # margin ≥ -1 считаем победным
+                        max_transfers_per_turn=3,    # чуть быстрее консолидация
+                        )
+
+    return w
 
 
 def _adaptive_attack_params(ratio):
@@ -3778,11 +5174,16 @@ def _defender_at(state, tgt, eta):
     return float(tgt.ships) + float(tgt.production) * max(0.0, eta - proj_at)
 
 
-def _execute_plan_atomically(state, plan, committed):
+def _execute_plan_atomically(state, plan, committed, risk_tolerance=0):
     """
     Атомарный запуск плана: либо все части плана успешно зарезервированы,
     углы посчитаны и подтверждены simulate_launch, либо план полностью
     отбрасывается (ничего не запускается).
+
+    `risk_tolerance` — должен совпадать со значением переданным в swarm_plan.
+    При risk_tolerance >= 1 снижаем eta_drift_buffer для enemy-планет с 1 до 0:
+    план сгенерирован с margin ≥ −1 (overkill=1), поэтому execute проверяет
+    ту же планку — иначе marginal-план всегда блокируется здесь же.
 
     Это гарантирует требование: любой запуск либо меняет стейт цели сам
     (direct), либо совместно с другим утверждённым запуском (multi_sync),
@@ -3836,8 +5237,17 @@ def _execute_plan_atomically(state, plan, committed):
                          and plan.get('mode') == 'direct')
         if is_att_to_tgt:
             defender_actual = _defender_at(state, tgt, sim_eta)
-            if n_actual <= defender_actual:
-                return [], (f'wont_win: ships={n_actual} <= defender_at_eta={defender_actual:.1f} '
+            # Нейтралы: производства нет, defender детерминирован — строгий >
+            # достаточен, лишний буфер только выбрасывал бы корабли впустую.
+            # Enemy-owned: sim_eta чуть длиннее расчётного eta_at плана, за это
+            # время defender успевает подрасти на +prod. Буфер +1 закрывает
+            # off-by-one когда gap = 0 (77 случаев в логе).
+            # risk_tolerance>=1: plan was generated with overkill=1 for enemy planets,
+            # so execute uses the same buffer (0) to stay consistent.
+            eta_drift_buffer = 0 if (tgt.owner == NEUTRAL_OWNER or risk_tolerance >= 1) else 1
+            if n_actual <= defender_actual + eta_drift_buffer:
+                return [], (f'wont_win: ships={n_actual} <= '
+                            f'defender_at_eta={defender_actual:.1f}+buf={eta_drift_buffer} '
                             f'(sim_eta={sim_eta}, tgt={tgt_id})')
 
         moves.append([planet_id, angle, n_actual])
@@ -3846,21 +5256,296 @@ def _execute_plan_atomically(state, plan, committed):
     return moves, 'ok'
 
 
+def _build_virtual_fleets(expected_actions, state_raw, opp_id: int) -> list:
+    """Создать список виртуальных Fleet-объектов из предсказанных действий.
+
+    Угол вычисляется как atan2(tgt - src) — простое приближение, достаточное
+    для project_state (точный aim_hybrid здесь избыточен и дорог).
+    Виртуальные флоты получают отрицательные ID чтобы не конфликтовать
+    с реальными.
+    """
+    import math as _m
+    planets_by_id = {p.id: p for p in state_raw.planets}
+    virtual = []
+    vid = _VIRTUAL_FLEET_ID_BASE
+    for a in expected_actions:
+        src = planets_by_id.get(a['from_id'])
+        tgt = planets_by_id.get(a['target_id'])
+        if src is None or tgt is None:
+            continue
+        angle = _m.atan2(tgt.y - src.y, tgt.x - src.x)
+        virtual.append(_Fleet(
+            id=vid,
+            owner=opp_id,
+            x=float(src.x),
+            y=float(src.y),
+            angle=angle,
+            from_planet_id=src.id,
+            ships=max(1, int(a['ships'])),
+        ))
+        vid -= 1
+    return virtual
+
+
+def _extract_new_opp_fleets(state_raw, prev_fleet_ids: set,
+                             opp_id: int,
+                             planets_by_id: dict) -> list:
+    """Найти флоты противника запущенные в прошлый ход.
+
+    Новый флот = fleet.owner == opp_id AND fleet.id не был в prev_fleet_ids.
+    Для каждого нового флота вычисляем (from_id, target_id) через
+    simulate_fleet_target, затем определяем action_type.
+    """
+    new_fleets = [
+        f for f in state_raw.fleets
+        if f.owner == opp_id and f.id not in prev_fleet_ids
+    ]
+    actions = []
+    for f in new_fleets:
+        tgt_id, _ = _sft(f, state_raw.planets, state_raw.omega)
+        if tgt_id is None:
+            continue
+        tgt = planets_by_id.get(tgt_id)
+        if tgt is None:
+            continue
+        if tgt.owner == opp_id:
+            atype = 'reinforce'
+        elif tgt.owner == _NO:
+            atype = 'capture_neutral'
+        else:
+            atype = 'attack_enemy'
+        actions.append({
+            'from_id':     getattr(f, 'from_planet_id', -1),
+            'target_id':   tgt_id,
+            'ships':       int(f.ships),
+            'action_type': atype,
+        })
+    return actions
+
+
+def _count_players(state_raw):
+    """Считает число активных игроков из планет и флотов."""
+    owners = set()
+    for p in getattr(state_raw, 'planets', []):
+        if getattr(p, 'owner', -1) != -1:
+            owners.add(p.owner)
+    for f in getattr(state_raw, 'fleets', []):
+        owners.add(getattr(f, 'owner', -1))
+    owners.discard(-1)
+    return max(2, len(owners))
+
+
 def _agent_impl(obs, deadline=None):
     player    = obs.get('player', 0)
     state_raw = GameState.from_kaggle_obs(obs)
 
-    # 0. Проекция: резолвим все летящие флоты (свои и чужие).
-    #    После этого state.planets — состояние на момент последнего события.
-    #    player передаётся, чтобы projection знал чьи кометы «отскакивают»
-    #    обратно на ближайшую нашу планету (см. project_state docstring).
-    state = project_state(state_raw, horizon=PROJECTION_HORIZON, player=player)
+    # Выбираем веса в зависимости от режима (2-player vs FFA)
+    _n_players      = _count_players(state_raw)
+    _is_ffa         = _n_players >= 4
+    _active_weights = SWARM_WEIGHTS_4P if _is_ffa else SWARM_WEIGHTS
 
+    # _step нужен и байесу (step=) и MCTS-логу, поэтому извлекаем сразу.
     _step = (obs.get('step') if isinstance(obs.get('step'), int) else
              obs.get('stepNumber') if isinstance(obs.get('stepNumber'), int) else
              getattr(state_raw, 'step', -1))
-    _dbg.begin_turn(_step, player, len(state.planets), len(state.fleets))
+
+    # ── Байесовский предсказатель (обновление + добавление виртуальных флотов) ──
+    global _bayes_model, _prev_fleet_ids, _prev_state_raw
+    state_for_projection = state_raw   # может быть заменено расширенным
+
+    if USE_OPPONENT_PREDICTION and _BAYES_AVAILABLE:
+        try:
+            opp_id = (player + 1) % max(2, getattr(state_raw, 'n_players', 2))
+            planets_by_id = {p.id: p for p in state_raw.planets}
+
+            # Включаем аналитику если включён debug-лог (zero-cost в бою)
+            if _opp_bayes_mod is not None:
+                _opp_bayes_mod.ANALYTICS_MODE = _dbg.enabled()
+
+            # Ленивая инициализация
+            if _bayes_model is None:
+                _bayes_model = OpponentModelBayesian()
+
+            # Шаг 1: обновить модель по реально наблюдённым флотам противника
+            if _prev_fleet_ids is not None and _prev_state_raw is not None:
+                observed = _extract_new_opp_fleets(
+                    state_raw, _prev_fleet_ids, opp_id, planets_by_id
+                )
+                metrics = _bayes_model.update(
+                    observed, _prev_state_raw, opp_id, step=_step
+                )
+                # Логируем аналитику если включена (metrics != None только при ANALYTICS_MODE)
+                if metrics is not None and _dbg.enabled():
+                    try:
+                        _dbg._w(
+                            f'[BAYES/update]  step={metrics["step"]}'
+                            f'  surprise={metrics["surprise"]:.3f}'
+                            f'  entropy={metrics["entropy"]:.3f}'
+                            f'  top={metrics["top_preset"]}({metrics["top_prob"]:.2f})'
+                            f'  obs={metrics["n_opponent_actions"]}'
+                            f'  matched={metrics["match_count"]}'
+                        )
+                        # Метрика непонимания: confusion% = entropy/ln(5)*100
+                        # 100% = полная неопределённость, 0% = уверен в пресете
+                        _dbg.log_bayes_confusion(metrics['entropy'])
+                    except Exception:
+                        pass
+
+            # Шаг 2: получить предсказанные действия и создать виртуальные флоты
+            expected = _bayes_model.get_expected_actions(
+                state_raw, opp_id, threshold=BAYES_THRESHOLD
+            )
+            if expected:
+                virtual = _build_virtual_fleets(expected, state_raw, opp_id)
+                if virtual:
+                    augmented_fleets = list(state_raw.fleets) + virtual
+                    state_for_projection = _GS(
+                        planets=list(state_raw.planets),
+                        fleets=augmented_fleets,
+                        omega=state_raw.omega,
+                        step=state_raw.step,
+                        initial_planets=list(state_raw._initial_planets.values()),
+                        n_players=getattr(state_raw, 'n_players', 2),
+                        comet_ids=set(getattr(state_raw, 'comet_ids', set()) or set()),
+                    )
+            if _dbg.enabled():
+                try:
+                    _dbg._w(
+                        f'[BAYES/predict]  top={_bayes_model.top_preset()}'
+                        f'  expected={len(expected)}'
+                        f'  virtual={len(virtual) if expected else 0}'
+                        f'  dist={_bayes_model.summary()}'
+                    )
+                except Exception:
+                    pass
+
+        except Exception as _bayes_err:
+            try: _dbg.log_error('bayes', _bayes_err)
+            except Exception: pass
+
+    # 0. Проекция: резолвим все летящие флоты (свои и чужие + виртуальные).
+    #    После этого state.planets — состояние на момент последнего события.
+    #    player передаётся, чтобы projection знал чьи кометы «отскакивают»
+    #    обратно на ближайшую нашу планету (см. project_state docstring).
+    _raw_n_fleets = len(getattr(state_for_projection, 'fleets', []))
+    state = project_state(state_for_projection, horizon=PROJECTION_HORIZON, player=player)
+
+    _dbg.begin_turn(_step, player, len(state.planets), _raw_n_fleets)
     _dbg.log_fleets(state.fleets, player)
+    if _step == 0:
+        global _prev_zones
+        _prev_zones = {}
+
+    # ── 0.5. MCTS (ранняя игра) ───────────────────────────────────────────────
+    # Условие включения: USE_MCTS, модуль доступен, ранняя фаза, карта небольшая.
+    # При успехе — возвращаем ходы прямо из MCTS, минуя весь основной пайплайн.
+    # При любой ошибке — молча падаем сквозь в обычную логику (fail-safe).
+    global _opponent_model, _pending_partials
+    if (USE_MCTS and _MCTS_AVAILABLE and MCTS_MODE != "none"
+            and _step >= 0 and _step < EARLY_GAME_SWITCH
+            and len(state.planets) <= EARLY_MAX_PLANETS):
+        try:
+            import time as _time_mcts
+            # Ленивая инициализация модели противника (сбрасывается при старте матча)
+            if _opponent_model is None:
+                _opponent_model = OpponentModel()
+
+            # Генерируем ПАР согласно MCTS_MODE
+            opp_id = (player + 1) % max(2, getattr(state, 'n_players', 2))
+
+            if MCTS_MODE == "v2_pair":
+                try:
+                    from action_space_v2 import generate_actions_v2
+                    my_actions = generate_actions_v2(state, player)
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            elif MCTS_MODE == "v3_partial":
+                try:
+                    from action_space_v3 import generate_actions_v3, PartialAction
+                    my_actions = generate_actions_v3(
+                        state, player,
+                        pending_partials=_pending_partials or [],
+                    )
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            elif MCTS_MODE == "v4_hybrid_net":
+                try:
+                    from action_space_v4 import generate_actions_v4
+                    my_actions = generate_actions_v4(state, player)
+                except ImportError:
+                    my_actions = generate_actions(state, player)
+
+            else:  # v1_plain (default)
+                my_actions = generate_actions(state, player)
+
+            opp_actions = generate_opponent_actions(state, opp_id)
+
+            # Бюджет времени: доля от остатка до дедлайна
+            if deadline is not None:
+                remaining   = deadline - _time_mcts.perf_counter()
+                mcts_budget = max(0.05, remaining * MCTS_TIME_FRACTION)
+            else:
+                mcts_budget = 0.35
+
+            if _dbg.enabled():
+                try:
+                    _d._w(f'[MCTS/{MCTS_MODE}]  step={_step}'
+                          f'  my_actions={len(my_actions)}'
+                          f'  opp_actions={len(opp_actions)}'
+                          f'  budget={mcts_budget:.3f}s')
+                except Exception:
+                    pass
+
+            best_action = run_mcts(
+                state, my_actions, opp_actions,
+                _opponent_model, player,
+                time_budget=mcts_budget,
+            )
+
+            if best_action is not None:
+                if _dbg.enabled():
+                    try:
+                        _d._w(f'[MCTS/{MCTS_MODE}]  best={best_action}')
+                    except Exception:
+                        pass
+                # v3: track PartialAction for second wave next turn
+                if MCTS_MODE == "v3_partial":
+                    try:
+                        from action_space_v3 import PartialAction as _PA
+                        if isinstance(best_action, _PA):
+                            if _pending_partials is None:
+                                _pending_partials = []
+                            _pending_partials.append(best_action)
+                    except Exception:
+                        pass
+                _dbg.end_turn()
+                return best_action.to_moves()
+            # Если MCTS не нашёл хода — продолжаем в обычный пайплайн
+            if _dbg.enabled():
+                try:
+                    _d._w(f'[MCTS/{MCTS_MODE}]  no action found, falling back')
+                except Exception:
+                    pass
+        except Exception as _mcts_err:
+            try: _dbg.log_error('mcts', _mcts_err)
+            except Exception: pass
+            # Любая ошибка → продолжаем в обычный пайплайн
+
+    # Game Understanding Layer — глобальное «понимание» текущего хода.
+    # Пока просто логируем для проверки; интегрировать в scoring — следующий шаг.
+    try:
+        ctx = compute_context(state, player)
+        if _dbg.enabled():
+            try:
+                _d._w(f'[GUL]  {context_summary(ctx)}')
+            except Exception:
+                pass
+    except Exception as _e:
+        ctx = None
+        try: _dbg.log_error('compute_context', _e)
+        except Exception: pass
 
     # 0.5. Адаптивная ширина: по ratio = our_ships/total выбираем top_n
     #      финальных планов и priority_floor (отсечку по приоритету целей).
@@ -3874,14 +5559,45 @@ def _agent_impl(obs, deadline=None):
             pass
 
     # 1. Зонирование (на спроецированном состоянии)
+    # our_total_prod — для production-scarcity boost (ранняя игра).
+    # Считаем по raw_planets (до проекции), чтобы отражать реальный прод сейчас.
+    _raw_pl_early = getattr(state, 'raw_planets', state.planets)
+    our_total_prod = sum(
+        float(p.production) for p in _raw_pl_early if p.owner == player
+    )
+    # Вычисляем stage-aware порог priority-reclassify: линейная интерполяция
+    # от prio_reclassify_thr (step=0) до prio_reclassify_thr_late (step=TOTAL).
+    # Если оба одинаковые (дефолт) — статичный порог, интерполяции нет.
+    # Читаем из активных весов (_active_weights = 2p или 4p в зависимости от режима).
+    _prio_thr_early = float(getattr(_active_weights, 'prio_reclassify_thr',
+                                    _PRIO_RECLASSIFY_THR_DEFAULT))
+    _prio_thr_late  = float(getattr(_active_weights, 'prio_reclassify_thr_late',
+                                    _prio_thr_early))
+    _phase_prio     = min(1.0, max(0.0, float(_step) / float(_TOTAL_STEPS))) if _step >= 0 else 0.0
+    _eff_prio_thr   = _prio_thr_early + (_prio_thr_late - _prio_thr_early) * _phase_prio
+
     try:
-        df, _ = compute_zones_from_state(state, player=player)
+        df, _ = compute_zones_from_state(state, player=player,
+                                         our_total_prod=our_total_prod,
+                                         prio_reclassify_thr=_eff_prio_thr)
     except Exception as e:
         _dbg.log_error('compute_zones_from_state', e)
         _dbg.end_turn()
         return []
 
     _dbg.log_zones(df, projected_at=getattr(state, 'projected_at', {}))
+    zone_lookup = {int(r['pid']): r['zone'] for _, r in df.iterrows()}
+    _dbg.log_zone_flips(_prev_zones, zone_lookup)
+    _prev_zones = dict(zone_lookup)   # обновляем кеш для следующего хода
+
+    if _dbg.enabled():
+        _phase = min(1.0, float(getattr(state, 'step', 0) or 0) / float(_TS))
+        _fade  = max(0.0, 1.0 - _phase / EARLY_PHASE_THR)
+        _boost = (SCARCITY_K / (1.0 + our_total_prod)) * _fade
+        if _boost > 0.01:
+            _dbg._w(f'[SCARCITY]  our_prod={our_total_prod:.0f}  phase={_phase:.2f}'
+                    f'  fade={_fade:.2f}  prod_boost=×{1+_boost:.2f}'
+                    f'  eff_prod_w={0.5*(1+_boost):.3f}')
 
     # 1.5. Классификация наших планет по комбинации raw × projection:
     #      stable / doomed / incoming_friendly.
@@ -3966,26 +5682,48 @@ def _agent_impl(obs, deadline=None):
     #    USE_SWARM=True → swarm_plan: per-planet auction + redistribute.
     #    Иначе fallback на best_attacks (глобальный priority).
     if USE_SWARM:
+        # Адаптируем веса под текущий контекст (stance + ratio).
+        # _adapt_swarm_weights возвращает копию SWARM_WEIGHTS с динамичными
+        # transfer-порогами и desperate-режимом (см. подробный комментарий).
+        eff_weights = _adapt_swarm_weights(_active_weights, ctx, ratio)
+        if _dbg.enabled():
+            try:
+                _stance = getattr(ctx, 'stance', '?') if ctx else '?'
+                _fl     = eff_weights.transfer_floor
+                _ms     = eff_weights.transfer_min_ships
+                _rt     = eff_weights.risk_tolerance
+                _mx_tr  = eff_weights.max_transfers_per_turn
+                _dbg._w(f'[WEIGHTS]  stance={_stance}  ratio={ratio:.3f}'
+                        f'  floor={_fl:.1f}  min_ships={_ms}'
+                        f'  risk_tol={_rt}  max_tr={_mx_tr}')
+            except Exception:
+                pass
+
         # priority_lookup для tiebreaker'а в аукционе (из zones)
         prio_lookup = {int(r.pid): float(r.priority)
                        for _, r in df.iterrows()
                        if 'priority' in df.columns}
         attack_plans, swarm_dbg = swarm_plan(
             state, player, targets,
-            weights=SWARM_WEIGHTS, priority_lookup=prio_lookup,
+            weights=eff_weights, priority_lookup=prio_lookup,
+            zone_lookup=zone_lookup,
             max_targets=12,         # cap: на больших картах не успеваем за бюджет kaggle
             deadline=deadline,      # передаём из обёртки agent()
         )
         if _dbg.enabled():
             try:
-                _d._w(f'[SWARM]  cand={swarm_dbg["n_candidates"]} '
-                      f'committed={swarm_dbg["n_committed"]} '
-                      f'transfers={swarm_dbg["n_transfers"]} '
-                      f'unfunded={swarm_dbg["n_unfunded"]}')
+                _dbg._w(f'[SWARM]  cand={swarm_dbg["n_candidates"]} '
+                        f'committed={swarm_dbg["n_committed"]} '
+                        f'transfers={swarm_dbg["n_transfers"]} '
+                        f'unfunded={swarm_dbg["n_unfunded"]}')
                 top_stress = sorted(swarm_dbg['stress'].items(),
                                     key=lambda x: -x[1])[:5]
-                _d._w(f'[SWARM]  top stress: '
-                      + ' '.join(f'p{pid}={s:.1f}' for pid, s in top_stress))
+                _dbg._w(f'[SWARM]  top stress: '
+                        + ' '.join(f'p{pid}={s:.1f}' for pid, s in top_stress))
+                # Idle-деньги: сколько кораблей осталось на каждой планете
+                _dbg.log_remaining(swarm_dbg.get('remaining', {}), zone_lookup)
+                # Детали transfers: откуда, куда, градиент
+                _dbg.log_transfers(attack_plans, zone_lookup)
             except Exception:
                 pass
     else:
@@ -4005,7 +5743,9 @@ def _agent_impl(obs, deadline=None):
         if not plan.get('success'):
             _dbg.log_decision(idx, plan, 'SKIP', 'plan.success=false (won\'t change tgt state)')
             continue
-        sub, reason = _execute_plan_atomically(state, plan, committed)
+        sub, reason = _execute_plan_atomically(state, plan, committed,
+                                                risk_tolerance=eff_weights.risk_tolerance
+                                                if USE_SWARM else 0)
         if sub:
             _dbg.log_decision(idx, plan, 'FIRE',
                               f'parts={len(sub)} '
@@ -4016,6 +5756,31 @@ def _agent_impl(obs, deadline=None):
 
     _dbg.log_moves(moves)
     _dbg.end_turn()
+
+    # ── Сохраняем state для байесовского обновления на следующем ходу ─────
+    if USE_OPPONENT_PREDICTION and _BAYES_AVAILABLE:
+        try:
+            _prev_fleet_ids = {f.id for f in state_raw.fleets}
+            _prev_state_raw = state_raw
+        except Exception:
+            pass
+
+    # ── Дамп аналитики байеса в конце матча ──────────────────────────────
+    # Только в debug-режиме. Kaggle-бои: _dbg.enabled() == False → пропуск.
+    if (_dbg.enabled() and _BAYES_AVAILABLE
+            and _bayes_model is not None
+            and _bayes_model.analytics_history):
+        try:
+            is_last = (_step >= 498)   # kaggle матч обычно 500 ходов
+            if is_last:
+                import json as _json
+                history = _bayes_model.dump_analytics()
+                _dbg._w(f'[BAYES/dump]  turns={len(history)}')
+                for rec in history:
+                    _dbg._w('[BAYES/H] ' + _json.dumps(rec, separators=(',', ':')))
+        except Exception:
+            pass
+
     return moves
 
 
@@ -4043,36 +5808,26 @@ def agent(obs, config=None):
         return []
 
 
-# ── BEST WEIGHTS из reverse_tournament ──────────────
-# winner_seed20: WR=0.46 на 100 сидах vs default 0.38
-SWARM_WEIGHTS = SwarmWeights(
-    activity_weight=1.29,
-    idle_floor=40,
-    distance_comfort=0.18,
-    risk_tolerance=2,
-    ships_weight=1.37,
-    eta_bonus=16.66,
-    priority_bonus=2.84,
-    stress_top_k=3,
-    stress_gamma=1.5,
+# ── _dbg namespace (agent_debug инлайнен, восстанавливаем ссылку) ──
+import types as _types_dbg
+_dbg = _types_dbg.SimpleNamespace(
+    enabled=enabled,
+    reset=reset,
+    begin_turn=begin_turn,
+    log_zones=log_zones,
+    log_targets=log_targets,
+    log_plans=log_plans,
+    log_decision=log_decision,
+    log_moves=log_moves,
+    log_fleets=log_fleets,
+    log_error=log_error,
+    end_turn=end_turn,
+    plans_all_enabled=plans_all_enabled,
+    log_remaining=log_remaining,
+    log_transfers=log_transfers,
+    log_zone_flips=log_zone_flips,
+    log_bayes_confusion=log_bayes_confusion,
+    reset_decisions=reset_decisions,
+    _w=_w,
+    _safe=_safe,
 )
-
-# ── _dbg namespace для совместимости с agent.py ──
-import types as _types_for_dbg
-_dbg = _types_for_dbg.SimpleNamespace()
-if '_resolve' in globals(): setattr(_dbg, '_resolve', globals()['_resolve'])
-if 'enabled' in globals(): setattr(_dbg, 'enabled', globals()['enabled'])
-if 'reset' in globals(): setattr(_dbg, 'reset', globals()['reset'])
-if '_w' in globals(): setattr(_dbg, '_w', globals()['_w'])
-if '_safe' in globals(): setattr(_dbg, '_safe', globals()['_safe'])
-if 'begin_turn' in globals(): setattr(_dbg, 'begin_turn', globals()['begin_turn'])
-if 'log_zones' in globals(): setattr(_dbg, 'log_zones', globals()['log_zones'])
-if 'log_targets' in globals(): setattr(_dbg, 'log_targets', globals()['log_targets'])
-if 'log_plans' in globals(): setattr(_dbg, 'log_plans', globals()['log_plans'])
-if 'log_decision' in globals(): setattr(_dbg, 'log_decision', globals()['log_decision'])
-if 'reset_decisions' in globals(): setattr(_dbg, 'reset_decisions', globals()['reset_decisions'])
-if 'log_moves' in globals(): setattr(_dbg, 'log_moves', globals()['log_moves'])
-if 'log_fleets' in globals(): setattr(_dbg, 'log_fleets', globals()['log_fleets'])
-if 'log_error' in globals(): setattr(_dbg, 'log_error', globals()['log_error'])
-if 'end_turn' in globals(): setattr(_dbg, 'end_turn', globals()['end_turn'])
-if 'plans_all_enabled' in globals(): setattr(_dbg, 'plans_all_enabled', globals()['plans_all_enabled'])

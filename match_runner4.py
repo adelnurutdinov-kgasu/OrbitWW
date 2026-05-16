@@ -49,7 +49,8 @@ def run_match4(task):
         'seed':     int,
         'our_path': str,
         'opps':     [str, str, str],   # три оппонента (могут повторяться)
-        'weights':  dict | None,
+        'weights':  dict | None,       # overrides для SWARM_WEIGHTS (2-player)
+        'weights4': dict | None,       # overrides для SWARM_WEIGHTS_4P (4-player FFA)
         'label':    str,
     }
     Возвращает dict — всё сериализуемо.
@@ -59,22 +60,30 @@ def run_match4(task):
     seed     = task['seed']
     our_path = task.get('our_path', os.path.join(BUNDLE_DIR, 'agent.py'))
     opps     = task.get('opps', ['sub2', 'sub2', 'sub2'])
-    weights  = task.get('weights') or {}
+    weights  = task.get('weights')  or {}
+    weights4 = task.get('weights4') or {}
     label    = task.get('label', '+'.join(opps))
 
     uid = f"{seed}_{label}_{abs(hash(str(task)))%10**6}"
 
     # ── наш агент ──────────────────────────────────────────────────────
     our_mod = _load(our_path, f"_our_{uid}")
-    if weights:
+
+    def _apply_weights(base_weights, overrides, attr_name):
+        if not overrides:
+            return
         from dataclasses import asdict, fields as dc_fields
         from swarm import SwarmWeights
-        base = asdict(SwarmWeights())
-        base.update(weights)
+        base = asdict(base_weights)
+        base.update(overrides)
         for f in dc_fields(SwarmWeights):
             if f.type is int and f.name in base:
                 base[f.name] = int(base[f.name])
-        our_mod.SWARM_WEIGHTS = SwarmWeights(**base)
+        setattr(our_mod, attr_name, SwarmWeights(**base))
+
+    from swarm import SwarmWeights
+    _apply_weights(SwarmWeights(), weights,  'SWARM_WEIGHTS')
+    _apply_weights(SwarmWeights(), weights4, 'SWARM_WEIGHTS_4P')
 
     # ── три оппонента ──────────────────────────────────────────────────
     opp_fns = [_load_opp(name, f"{uid}_{i}") for i, name in enumerate(opps)]
