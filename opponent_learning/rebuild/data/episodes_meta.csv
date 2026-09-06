@@ -1,0 +1,501 @@
+episode_id,n_players,n_steps,rewards_json,statuses_json,team_names_json,winners_idx,is_1v1,is_ffa4,is_draw,seed,episode_steps_max,shipSpeed,cometSpeed
+75368665,2,76,"[-1, 1]","[""DONE"", ""DONE""]","[""synapse8891"", ""kovi""]",[1],True,False,False,720455350.0,500,6.0,4.0
+75372144,4,212,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""mmath2"", ""kovi"", ""Shun_PI"", ""Ilja Grigorjev""]",[1],False,True,False,1918230544.0,500,6.0,4.0
+75372594,2,141,"[1, -1]","[""DONE"", ""DONE""]","[""kovi"", ""ONYX WARS""]",[0],True,False,False,776030491.0,500,6.0,4.0
+75375338,2,395,"[1, -1]","[""DONE"", ""DONE""]","[""kovi"", ""Shun_PI""]",[0],True,False,False,441690394.0,500,6.0,4.0
+75398399,2,120,"[1, -1]","[""DONE"", ""DONE""]","[""kovi"", ""Bart Simpson""]",[0],True,False,False,1246246651.0,500,6.0,4.0
+75556366,4,161,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""istinetz"", ""kovi"", ""HY2017"", ""Orbital Occle""]",[1],False,True,False,1534353659.0,500,6.0,4.0
+75556510,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""glass_256"", ""ush"", ""kovi""]",[2],False,True,False,1937894603.0,500,6.0,4.0
+75557254,4,137,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbital Occle"", ""HY2017"", ""kovi""]",[2],False,True,False,1820228129.0,500,6.0,4.0
+75560041,2,200,"[-1, 1]","[""DONE"", ""DONE""]","[""Ezra"", ""Orbital Occle""]",[1],True,False,False,514362331.0,500,6.0,4.0
+75571862,4,212,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""ush"", ""sash"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75608555,2,153,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erfan Eshratifar""]",[0],True,False,False,,500,6.0,4.0
+75610004,4,143,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Erfan Eshratifar"", ""kovi"", ""Orbital Occle""]",[1],False,True,False,,500,6.0,4.0
+75614274,2,122,"[-1, 1]","[""DONE"", ""DONE""]","[""kovi"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+75618884,4,207,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Andrew Tratz"", ""c-number"", ""Orbital Occle"", ""sash""]",[3],False,True,False,,500,6.0,4.0
+75624437,4,266,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""Orbital Occle"", ""Ousagi"", ""Ezra""]",[3],False,True,False,,500,6.0,4.0
+75632972,4,464,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""sash"", ""Andrew Tratz"", ""Orbital Occle"", ""kovi""]",[3],False,True,False,,500,6.0,4.0
+75641715,4,323,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""sash"", ""Erfan Eshratifar"", ""Shun_PI""]",[2],False,True,False,,500,6.0,4.0
+75641802,4,234,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""kovi"", ""Ezra"", ""Orbital Occle""]",[0],False,True,False,,500,6.0,4.0
+75642437,4,388,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Orbital Occle"", ""kovi"", ""Erfan Eshratifar""]",[3],False,True,False,,500,6.0,4.0
+75645971,4,171,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Saurabh Kumar234"", ""Guilherme Silva"", ""fgwiebfaoish"", ""\u2e3bAgentZZ \u2e3b""]",[2],False,True,False,,500,6.0,4.0
+75648312,4,181,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""fgwiebfaoish"", ""Orbital Occle"", ""ra5anchor""]",[2],False,True,False,,500,6.0,4.0
+75648785,4,186,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Orbital Occle"", ""HY2017"", ""ush""]",[0],False,True,False,,500,6.0,4.0
+75649223,4,188,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""ush"", ""HY2017"", ""Boey""]",[2],False,True,False,,500,6.0,4.0
+75649677,4,135,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""TimeIsGold"", ""Orbital Occle"", ""HY2017""]",[3],False,True,False,,500,6.0,4.0
+75653592,4,216,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""Ousagi"", ""fgwiebfaoish"", ""HY2017""]",[2],False,True,False,,500,6.0,4.0
+75653796,2,217,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""HY2017""]",[1],True,False,False,,500,6.0,4.0
+75665474,2,81,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""glass_256""]",[0],True,False,False,,500,6.0,4.0
+75665680,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""Andrew Tratz"", ""Orbital Occle"", ""jack gell""]",[0],False,True,False,,500,6.0,4.0
+75672648,2,167,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75674654,2,199,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""HY2017""]",[1],True,False,False,,500,6.0,4.0
+75678738,2,128,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75678884,4,490,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""ra5anchor"", ""Naoism"", ""c-number""]",[3],False,True,False,,500,6.0,4.0
+75681966,4,144,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""Orbital Occle"", ""HY2017"", ""mtmr_s1""]",[2],False,True,False,,500,6.0,4.0
+75682275,4,174,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""\u8d75\u4e91\u9f99"", ""kovi"", ""Ezra""]",[3],False,True,False,,500,6.0,4.0
+75682823,2,137,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Ousagi""]",[0],True,False,False,,500,6.0,4.0
+75684015,2,164,"[1, -1]","[""DONE"", ""DONE""]","[""kovi"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+75692201,4,362,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Wenchong Huang"", ""fgwiebfaoish"", ""mtmr_s1""]",[0],False,True,False,,500,6.0,4.0
+75693268,4,358,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Ousagi"", ""ush"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0
+75693368,4,208,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""HY2017"", ""fgwiebfaoish"", ""Erfan Eshratifar""]",[3],False,True,False,,500,6.0,4.0
+75696094,2,193,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erfan Eshratifar""]",[1],True,False,False,,500,6.0,4.0
+75696709,4,127,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""fgwiebfaoish"", ""Ezra"", ""kovi""]",[3],False,True,False,,500,6.0,4.0
+75697081,2,134,"[-1, 1]","[""DONE"", ""DONE""]","[""mtmr_s1"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75697366,4,223,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Ezra"", ""Orbital Occle"", ""ush""]",[1],False,True,False,,500,6.0,4.0
+75697432,2,258,"[-1, 1]","[""DONE"", ""DONE""]","[""F\u00e9lix Truong"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75698121,2,159,"[-1, 1]","[""DONE"", ""DONE""]","[""Yiheng (Ethan) Cai"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75699482,4,301,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""bowwowforeach"", ""Orbital Occle"", ""Erfan Eshratifar""]",[3],False,True,False,,500,6.0,4.0
+75699913,2,160,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75700277,4,202,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""Orbital Occle"", ""kovi"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75701419,2,169,"[-1, 1]","[""DONE"", ""DONE""]","[""ra5anchor"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75701856,2,183,"[1, -1]","[""DONE"", ""DONE""]","[""Ezra"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75706370,2,153,"[1, -1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75709643,4,249,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbital Occle"", ""lookaside"", ""Ezra""]",[3],False,True,False,,500,6.0,4.0
+75710307,4,170,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Andrew Tratz"", ""kovi"", ""lookaside"", ""HY2017""]",[1],False,True,False,,500,6.0,4.0
+75714286,4,367,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Ezra"", ""Orbital Occle"", ""sash""]",[0],False,True,False,,500,6.0,4.0
+75716279,4,230,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""Orbital Occle"", ""Ousagi"", ""HY2017""]",[3],False,True,False,,500,6.0,4.0
+75717722,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ascalon"", ""mtmr_s1"", ""fgwiebfaoish"", ""SalvadorDali""]",[1],False,True,False,,500,6.0,4.0
+75731565,4,315,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""sash"", ""fgwiebfaoish"", ""HY2017""]",[3],False,True,False,,500,6.0,4.0
+75733699,2,101,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""HY2017""]",[0],True,False,False,,500,6.0,4.0
+75736695,2,116,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""HY2017""]",[1],True,False,False,,500,6.0,4.0
+75738228,4,254,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""F\u00e9lix Truong"", ""Ousagi"", ""Wenchong Huang"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0
+75743036,2,267,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+75749145,4,320,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""bowwowforeach"", ""Orbital Occle"", ""Shun_PI""]",[0],False,True,False,,500,6.0,4.0
+75755341,2,186,"[1, -1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+75760975,2,170,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75761040,2,148,"[-1, 1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""fgwiebfaoish""]",[1],True,False,False,,500,6.0,4.0
+75773401,4,120,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ikki Katsuyama"", ""Sukjae Cho"", ""ush"", ""ktm""]",[2],False,True,False,,500,6.0,4.0
+75776178,4,152,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""Erfan Eshratifar"", ""Ousagi"", ""kovi""]",[1],False,True,False,,500,6.0,4.0
+75776353,2,152,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""HY2017""]",[1],True,False,False,,500,6.0,4.0
+75777084,4,171,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Orbital Occle"", ""HY2017"", ""kovi""]",[2],False,True,False,,500,6.0,4.0
+75777398,2,108,"[1, -1]","[""DONE"", ""DONE""]","[""kovi"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+75778169,2,144,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75778542,2,132,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Naoism""]",[0],True,False,False,,500,6.0,4.0
+75778962,2,117,"[-1, 1]","[""DONE"", ""DONE""]","[""HY2017"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75781174,2,191,"[-1, 1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""Ousagi""]",[1],True,False,False,,500,6.0,4.0
+75781277,2,183,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""kovi""]",[1],True,False,False,,500,6.0,4.0
+75783574,4,205,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""TensorFlower"", ""lookaside"", ""Ascalon"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75783641,4,134,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Leszek G\u00f3ra"", ""Orbital Occle"", ""Mille Initiate"", ""TensorFlower""]",[1],False,True,False,,500,6.0,4.0
+75784201,4,423,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""kovi"", ""HY2017"", ""lookaside""]",[0],False,True,False,,500,6.0,4.0
+75785726,2,120,"[-1, 1]","[""DONE"", ""DONE""]","[""Naoism"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75787078,2,211,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Naoism""]",[0],True,False,False,,500,6.0,4.0
+75789044,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""F\u00e9lix Truong"", ""Ousagi"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75791936,4,327,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""burgundy"", ""K_ChanHo"", ""istinetz"", ""Wenchong Huang""]",[3],False,True,False,,500,6.0,4.0
+75792704,4,153,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""Naoism"", ""Andrew Tratz"", ""ush""]",[0],False,True,False,,500,6.0,4.0
+75794847,4,134,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Wenchong Huang"", ""Naoism"", ""Artem"", ""HY2017""]",[3],False,True,False,,500,6.0,4.0
+75796408,2,261,"[1, -1]","[""DONE"", ""DONE""]","[""3Comets"", ""Wenchong Huang""]",[0],True,False,False,,500,6.0,4.0
+75797343,2,128,"[1, -1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""Jokrasa""]",[0],True,False,False,,500,6.0,4.0
+75798580,2,117,"[-1, 1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""Artem""]",[1],True,False,False,,500,6.0,4.0
+75798980,4,181,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""F\u00e9lix Truong"", ""c-number"", ""glass_256""]",[0],False,True,False,,500,6.0,4.0
+75800164,4,155,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""F\u00e9lix Truong"", ""ush"", ""Wenchong Huang"", ""SalvadorDali""]",[2],False,True,False,,500,6.0,4.0
+75811302,4,354,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""SonOfNike"", ""Ezra"", ""Mille Initiate""]",[2],False,True,False,,500,6.0,4.0
+75811319,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Igor V"", ""ngondi"", ""Shun_PI"", ""JM""]",[2],False,True,False,,500,6.0,4.0
+75811544,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""marouane_chirane"", ""Shun_PI"", ""Kushagragoyal060705"", ""Q537bf""]",[1],False,True,False,,500,6.0,4.0
+75811657,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Tarun Arora"", ""sue124"", ""T. Sri Vallabh"", ""Shun_PI""]",[3],False,True,False,,500,6.0,4.0
+75811794,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""AlphaOrbit [prize ineligible]"", ""simmons1025"", ""Shun_PI"", ""Saicharan Ramineni""]",[2],False,True,False,,500,6.0,4.0
+75812685,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""Vincent Schuler"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75813131,4,306,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""Ezra"", ""Vadasz"", ""bowwowforeach""]",[2],False,True,False,,500,6.0,4.0
+75813241,2,500,"[1, -1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""Ezra""]",[0],True,False,False,,500,6.0,4.0
+75815070,2,136,"[-1, 1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75815433,2,121,"[1, -1]","[""DONE"", ""DONE""]","[""lookaside"", ""ShunkiKyoya""]",[0],True,False,False,,500,6.0,4.0
+75815465,2,190,"[-1, 1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""Ousagi""]",[1],True,False,False,,500,6.0,4.0
+75816344,4,373,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ktr"", ""fgwiebfaoish"", ""mtmr_s1"", ""jack gell""]",[1],False,True,False,,500,6.0,4.0
+75816639,2,174,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75818582,2,132,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Erfan Eshratifar""]",[1],True,False,False,,500,6.0,4.0
+75820022,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""Ousagi"", ""Erik Kvanli"", ""fgwiebfaoish""]",[3],False,True,False,,500,6.0,4.0
+75820420,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Ousagi"", ""ymg_aq"", ""Shun_PI""]",[3],False,True,False,,500,6.0,4.0
+75822007,4,152,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ymg_aq"", ""Shun_PI"", ""lookaside"", ""ra5anchor""]",[1],False,True,False,,500,6.0,4.0
+75822068,4,195,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Vadasz"", ""ush"", ""Ousagi"", ""Shun_PI""]",[1],False,True,False,,500,6.0,4.0
+75823093,2,190,"[-1, 1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""Sean Jones""]",[1],True,False,False,,500,6.0,4.0
+75825240,2,107,"[1, -1]","[""DONE"", ""DONE""]","[""Vadasz"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+75825491,2,134,"[1, -1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""burgundy""]",[0],True,False,False,,500,6.0,4.0
+75826365,4,168,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Vadasz"", ""lookaside"", ""mtmr_s1"", ""kovi""]",[0],False,True,False,,500,6.0,4.0
+75826720,2,99,"[1, -1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75827029,2,137,"[-1, 1]","[""DONE"", ""DONE""]","[""kovi"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75827649,4,328,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""ush"", ""kovi"", ""Ezra""]",[2],False,True,False,,500,6.0,4.0
+75828924,2,127,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""kovi""]",[0],True,False,False,,500,6.0,4.0
+75829171,4,234,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Andrew Tratz"", ""Ousagi"", ""kovi"", ""HY2017""]",[2],False,True,False,,500,6.0,4.0
+75835292,2,141,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75836803,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75837587,2,196,"[-1, 1]","[""DONE"", ""DONE""]","[""Andrew Tratz"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+75837588,2,105,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75838010,4,285,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ShunkiKyoya"", ""Orbit Team"", ""Andrew Tratz"", ""SalvadorDali""]",[2],False,True,False,,500,6.0,4.0
+75840329,2,141,"[-1, 1]","[""DONE"", ""DONE""]","[""kovi"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75840368,2,125,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Erfan Eshratifar""]",[1],True,False,False,,500,6.0,4.0
+75843788,4,141,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""ush"", ""klog"", ""HY2017""]",[0],False,True,False,,500,6.0,4.0
+75843963,4,322,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ymg_aq"", ""Andrew Tratz"", ""klog"", ""Wenchong Huang""]",[3],False,True,False,,500,6.0,4.0
+75845040,2,128,"[1, -1]","[""DONE"", ""DONE""]","[""ush"", ""Orbit Team""]",[0],True,False,False,,500,6.0,4.0
+75845161,2,89,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""perpetual motion machine""]",[0],True,False,False,,500,6.0,4.0
+75845337,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""Gendaijin"", ""today"", ""Amir Tavasoli""]",[1],False,True,False,,500,6.0,4.0
+75845704,4,152,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""BIZEN250"", ""Theo Le Gall"", ""AnthonyTherrien""]",[0],False,True,False,,500,6.0,4.0
+75847145,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""Tommy Barnes"", ""ShunkiKyoya"", ""SalvadorDali""]",[0],False,True,False,,500,6.0,4.0
+75848499,2,144,"[-1, 1]","[""DONE"", ""DONE""]","[""Andrew Tratz"", ""Artem""]",[1],True,False,False,,500,6.0,4.0
+75850159,2,306,"[1, -1]","[""DONE"", ""DONE""]","[""flg"", ""Shuntaro Tanaka""]",[0],True,False,False,,500,6.0,4.0
+75850258,2,122,"[-1, 1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75850508,4,110,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Corgano"", ""Guillaume HIMBERT"", ""bowwowforeach"", ""zouchenfeng""]",[2],False,True,False,,500,6.0,4.0
+75851051,2,207,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""Wenchong Huang""]",[1],True,False,False,,500,6.0,4.0
+75851214,2,162,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""SalvadorDali""]",[0],True,False,False,,500,6.0,4.0
+75851849,2,89,"[-1, 1]","[""DONE"", ""DONE""]","[""Danila Lapokin"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75852143,2,292,"[1, -1]","[""DONE"", ""DONE""]","[""flg"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75852471,4,185,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""bowwowforeach"", ""HY2017"", ""Vadasz""]",[0],False,True,False,,500,6.0,4.0
+75853717,4,305,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Artem"", ""HY2017"", ""Boey""]",[0],False,True,False,,500,6.0,4.0
+75853843,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""SalvadorDali"", ""sash"", ""Ezra""]",[0],False,True,False,,500,6.0,4.0
+75854043,2,203,"[1, -1]","[""DONE"", ""DONE""]","[""sash"", ""Artem""]",[0],True,False,False,,500,6.0,4.0
+75854436,4,187,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""Ezra"", ""ra5anchor"", ""Artem""]",[0],False,True,False,,500,6.0,4.0
+75854766,4,183,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""ShunkiKyoya"", ""Artem"", ""sash""]",[3],False,True,False,,500,6.0,4.0
+75854976,2,160,"[1, -1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""bowwowforeach""]",[0],True,False,False,,500,6.0,4.0
+75855112,2,130,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+75855494,2,500,"[1, -1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""bowwowforeach""]",[0],True,False,False,,500,6.0,4.0
+75856083,2,187,"[1, -1]","[""DONE"", ""DONE""]","[""Boey"", ""Wenchong Huang""]",[0],True,False,False,,500,6.0,4.0
+75856289,2,168,"[-1, 1]","[""DONE"", ""DONE""]","[""Boey"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75856880,2,130,"[1, -1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""flg""]",[0],True,False,False,,500,6.0,4.0
+75858039,2,178,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""mtmr_s1""]",[0],True,False,False,,500,6.0,4.0
+75859612,4,128,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""ush"", ""Vadasz"", ""mtmr_s1""]",[2],False,True,False,,500,6.0,4.0
+75862353,4,274,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI"", ""Vadasz"", ""Erfan Eshratifar""]",[2],False,True,False,,500,6.0,4.0
+75862477,2,202,"[-1, 1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""Vadasz""]",[1],True,False,False,,500,6.0,4.0
+75862678,2,142,"[1, -1]","[""DONE"", ""DONE""]","[""Vadasz"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+75863121,4,206,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Shun_PI"", ""Ousagi"", ""Vadasz""]",[3],False,True,False,,500,6.0,4.0
+75863142,4,152,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Boey"", ""Ousagi"", ""Vadasz""]",[3],False,True,False,,500,6.0,4.0
+75864159,2,152,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Vadasz""]",[0],True,False,False,,500,6.0,4.0
+75864891,4,248,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Vadasz"", ""kovi"", ""flg""]",[1],False,True,False,,500,6.0,4.0
+75864911,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""HY2017"", ""ra5anchor"", ""3Comets""]",[2],False,True,False,,500,6.0,4.0
+75865456,4,364,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Vincent Schuler"", ""flg"", ""HY2017"", ""fgwiebfaoish""]",[1],False,True,False,,500,6.0,4.0
+75866275,2,231,"[-1, 1]","[""DONE"", ""DONE""]","[""HY2017"", ""Wenchong Huang""]",[1],True,False,False,,500,6.0,4.0
+75867151,2,257,"[-1, 1]","[""DONE"", ""DONE""]","[""HY2017"", ""flg""]",[1],True,False,False,,500,6.0,4.0
+75870117,2,119,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""kovi""]",[0],True,False,False,,500,6.0,4.0
+75872623,2,159,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""Vadasz""]",[1],True,False,False,,500,6.0,4.0
+75874543,2,148,"[1, -1]","[""DONE"", ""DONE""]","[""Naoism"", ""flg""]",[0],True,False,False,,500,6.0,4.0
+75875734,2,119,"[1, -1]","[""DONE"", ""DONE""]","[""Vadasz"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+75877534,2,249,"[1, -1]","[""DONE"", ""DONE""]","[""skuro0315"", ""Ezra""]",[0],True,False,False,,500,6.0,4.0
+75878390,2,168,"[-1, 1]","[""DONE"", ""DONE""]","[""Ezra"", ""Ousagi""]",[1],True,False,False,,500,6.0,4.0
+75880085,2,216,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""HY2017""]",[0],True,False,False,,500,6.0,4.0
+75882192,4,130,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Andrew Tratz"", ""kovi"", ""sash"", ""Shun_PI""]",[1],False,True,False,,500,6.0,4.0
+75886361,4,152,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""klog"", ""Son Pham"", ""SalvadorDali""]",[2],False,True,False,,500,6.0,4.0
+75888085,2,158,"[-1, 1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""Orbit Team""]",[1],True,False,False,,500,6.0,4.0
+75888091,2,160,"[1, -1]","[""DONE"", ""DONE""]","[""sash"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75888282,2,143,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+75890927,2,132,"[-1, 1]","[""DONE"", ""DONE""]","[""Andrew Tratz"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+75890977,2,266,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""Orbit Team""]",[0],True,False,False,,500,6.0,4.0
+75890978,2,186,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""Ousagi""]",[1],True,False,False,,500,6.0,4.0
+75891081,2,116,"[-1, 1]","[""DONE"", ""DONE""]","[""Avas Gaire"", ""Orbit Team""]",[1],True,False,False,,500,6.0,4.0
+75891671,2,195,"[1, -1]","[""DONE"", ""DONE""]","[""Vadasz"", ""sash""]",[0],True,False,False,,500,6.0,4.0
+75891694,2,257,"[-1, 1]","[""DONE"", ""DONE""]","[""Tommy Barnes"", ""Ezra""]",[1],True,False,False,,500,6.0,4.0
+75892238,2,167,"[-1, 1]","[""DONE"", ""DONE""]","[""aDg4b"", ""Orbit Team""]",[1],True,False,False,,500,6.0,4.0
+75892635,2,187,"[1, -1]","[""DONE"", ""DONE""]","[""ymg_aq"", ""Andrew Tratz""]",[0],True,False,False,,500,6.0,4.0
+75895003,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""mtmr_s1"", ""Naoism"", ""HY2017""]",[2],False,True,False,,500,6.0,4.0
+75896280,2,168,"[-1, 1]","[""DONE"", ""DONE""]","[""Thinker"", ""Ezra""]",[1],True,False,False,,500,6.0,4.0
+75896918,2,199,"[-1, 1]","[""DONE"", ""DONE""]","[""Naoism"", ""Ezra""]",[1],True,False,False,,500,6.0,4.0
+75897382,2,314,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Andrew Tratz""]",[1],True,False,False,,500,6.0,4.0
+75898362,2,166,"[1, -1]","[""DONE"", ""DONE""]","[""HY2017"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75898624,2,126,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75899584,4,226,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Wenchong Huang"", ""Ezra"", ""Orbital Occle"", ""HY2017""]",[0],False,True,False,,500,6.0,4.0
+75899927,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""Artem"", ""Andrew Tratz""]",[1],True,False,False,,500,6.0,4.0
+75900177,2,201,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""Andrew Tratz""]",[0],True,False,False,,500,6.0,4.0
+75900368,2,217,"[-1, 1]","[""DONE"", ""DONE""]","[""Artem"", ""Andrew Tratz""]",[1],True,False,False,,500,6.0,4.0
+75902356,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""Erfan Eshratifar"", ""Shun_PI"", ""bowwowforeach""]",[0],False,True,False,,500,6.0,4.0
+75902962,2,155,"[-1, 1]","[""DONE"", ""DONE""]","[""flg"", ""sash""]",[1],True,False,False,,500,6.0,4.0
+75904310,4,340,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""Ousagi"", ""bowwowforeach"", ""Wenchong Huang""]",[0],False,True,False,,500,6.0,4.0
+75905571,4,135,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ymg_aq"", ""flavso"", ""Mario Nicolae"", ""onick_man""]",[0],False,True,False,,500,6.0,4.0
+75905839,2,94,"[-1, 1]","[""DONE"", ""DONE""]","[""senkin13"", ""Claws""]",[1],True,False,False,,500,6.0,4.0
+75907512,2,100,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""ymg_aq""]",[1],True,False,False,,500,6.0,4.0
+75908481,4,182,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""jack gell"", ""Claws"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0
+75908621,2,198,"[1, -1]","[""DONE"", ""DONE""]","[""Claws"", ""fgwiebfaoish""]",[0],True,False,False,,500,6.0,4.0
+75909283,2,275,"[-1, 1]","[""DONE"", ""DONE""]","[""Andrew Tratz"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+75909571,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""glass_256"", ""SalvadorDali"", ""Ebi"", ""Claws""]",[2],False,True,False,,500,6.0,4.0
+75909889,2,96,"[1, -1]","[""DONE"", ""DONE""]","[""Claws"", ""ShunkiKyoya""]",[0],True,False,False,,500,6.0,4.0
+75910069,4,119,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Wenchong Huang"", ""sash"", ""ymg_aq""]",[2],False,True,False,,500,6.0,4.0
+75910097,4,157,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""typeIIIfairy"", ""ush"", ""SalvadorDali""]",[0],False,True,False,,500,6.0,4.0
+75910559,2,148,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75911154,4,210,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Claws"", ""I A A"", ""ShunkiKyoya"", ""mtmr_s1""]",[2],False,True,False,,500,6.0,4.0
+75911542,4,379,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""\u8d75\u4e91\u9f99"", ""aDg4b"", ""I A A""]",[2],False,True,False,,500,6.0,4.0
+75911938,2,176,"[1, -1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""Andrew Tratz""]",[0],True,False,False,,500,6.0,4.0
+75912766,2,159,"[1, -1]","[""DONE"", ""DONE""]","[""ymg_aq"", ""ra5anchor""]",[0],True,False,False,,500,6.0,4.0
+75914931,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""kovi"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75915235,2,148,"[-1, 1]","[""DONE"", ""DONE""]","[""Vadasz"", ""kovi""]",[1],True,False,False,,500,6.0,4.0
+75918336,2,117,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""kovi""]",[1],True,False,False,,500,6.0,4.0
+75920012,2,162,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75920471,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""jack gell"", ""Naoism"", ""fgwiebfaoish"", ""skuro0315""]",[2],False,True,False,,500,6.0,4.0
+75921008,4,154,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""flg"", ""Vadasz"", ""Orbital Occle"", ""kovi""]",[3],False,True,False,,500,6.0,4.0
+75921657,2,105,"[-1, 1]","[""DONE"", ""DONE""]","[""HY2017"", ""Wenchong Huang""]",[1],True,False,False,,500,6.0,4.0
+75921661,2,82,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75921861,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Naoism"", ""lookaside"", ""Ascalon"", ""Ousagi""]",[0],False,True,False,,500,6.0,4.0
+75923421,4,257,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Naoism"", ""SalvadorDali"", ""Wenchong Huang"", ""Orbit Team""]",[3],False,True,False,,500,6.0,4.0
+75923998,4,177,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""sash"", ""Artem"", ""ush""]",[1],False,True,False,,500,6.0,4.0
+75924157,4,181,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Wenchong Huang"", ""Ezra"", ""glass_256"", ""skuro0315""]",[1],False,True,False,,500,6.0,4.0
+75924167,4,176,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ichiro_9023"", ""lookaside"", ""Orbital Occle"", ""Ezra""]",[3],False,True,False,,500,6.0,4.0
+75924823,4,239,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""Andrew Tratz"", ""Orbital Occle"", ""Artem""]",[3],False,True,False,,500,6.0,4.0
+75925168,4,171,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Ezra"", ""lookaside"", ""Ousagi""]",[1],False,True,False,,500,6.0,4.0
+75926154,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""Ezra"", ""Orbit Team"", ""Vadasz""]",[3],False,True,False,,500,6.0,4.0
+75927019,2,174,"[-1, 1]","[""DONE"", ""DONE""]","[""flg"", ""Ezra""]",[1],True,False,False,,500,6.0,4.0
+75927245,4,236,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""Ousagi"", ""Ezra"", ""sash""]",[0],False,True,False,,500,6.0,4.0
+75927335,4,189,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""SalvadorDali"", ""HY2017"", ""ymg_aq""]",[2],False,True,False,,500,6.0,4.0
+75927373,4,256,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""Orbit Team"", ""Son Pham"", ""fgwiebfaoish""]",[0],False,True,False,,500,6.0,4.0
+75927389,4,157,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""ShunkiKyoya"", ""lookaside"", ""ra5anchor""]",[3],False,True,False,,500,6.0,4.0
+75927660,2,158,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""Son Pham""]",[0],True,False,False,,500,6.0,4.0
+75927875,2,201,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""Erfan Eshratifar""]",[0],True,False,False,,500,6.0,4.0
+75928348,4,314,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""Wenchong Huang"", ""ymg_aq"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75928517,2,152,"[1, -1]","[""DONE"", ""DONE""]","[""Ezra"", ""sash""]",[0],True,False,False,,500,6.0,4.0
+75928760,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""kovi"", ""sash"", ""Ezra"", ""Ousagi""]",[2],False,True,False,,500,6.0,4.0
+75929958,2,162,"[1, -1]","[""DONE"", ""DONE""]","[""Ezra"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75930440,2,186,"[1, -1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""I A A""]",[0],True,False,False,,500,6.0,4.0
+75930516,2,194,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""Ezra""]",[0],True,False,False,,500,6.0,4.0
+75930627,2,177,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""Andrew Tratz""]",[0],True,False,False,,500,6.0,4.0
+75930684,2,264,"[1, -1]","[""DONE"", ""DONE""]","[""Andrew Tratz"", ""flg""]",[0],True,False,False,,500,6.0,4.0
+75934343,4,336,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ascalon"", ""Ousagi"", ""klog"", ""I A A""]",[2],False,True,False,,500,6.0,4.0
+75935643,4,293,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""klog"", ""Andrew Tratz"", ""Orbit Team"", ""Orbital Occle""]",[1],False,True,False,,500,6.0,4.0
+75936669,2,196,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""klog""]",[0],True,False,False,,500,6.0,4.0
+75937328,4,155,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""ush"", ""ShunkiKyoya"", ""Orbit Team""]",[0],False,True,False,,500,6.0,4.0
+75937738,2,204,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""klog""]",[1],True,False,False,,500,6.0,4.0
+75938056,2,99,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""Erfan Eshratifar""]",[1],True,False,False,,500,6.0,4.0
+75938189,2,140,"[-1, 1]","[""DONE"", ""DONE""]","[""Aidan P5"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+75939046,2,146,"[1, -1]","[""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""sash""]",[0],True,False,False,,500,6.0,4.0
+75940913,2,124,"[1, -1]","[""DONE"", ""DONE""]","[""ush"", ""ra5anchor""]",[0],True,False,False,,500,6.0,4.0
+75941101,4,300,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Forrest"", ""penguin46"", ""HassenHamdi Winning InchaAllah"", ""Claws""]",[0],False,True,False,,500,6.0,4.0
+75941873,2,114,"[-1, 1]","[""DONE"", ""DONE""]","[""Aidan P5"", ""Claws""]",[1],True,False,False,,500,6.0,4.0
+75942176,2,147,"[1, -1]","[""DONE"", ""DONE""]","[""ShunkiKyoya"", ""ymg_aq""]",[0],True,False,False,,500,6.0,4.0
+75942366,2,205,"[1, -1]","[""DONE"", ""DONE""]","[""ra5anchor"", ""SalvadorDali""]",[0],True,False,False,,500,6.0,4.0
+75943024,4,195,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbit Team"", ""Vadasz"", ""klog""]",[2],False,True,False,,500,6.0,4.0
+75943167,2,215,"[-1, 1]","[""DONE"", ""DONE""]","[""ymg_aq"", ""Andrew Tratz""]",[1],True,False,False,,500,6.0,4.0
+75943919,2,154,"[-1, 1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""ShunkiKyoya""]",[1],True,False,False,,500,6.0,4.0
+75947221,4,340,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bomac1"", ""Ousagi"", ""ohkawa3"", ""Shun_PI""]",[1],False,True,False,,500,6.0,4.0
+75947997,4,241,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Orbital Occle"", ""flg"", ""Artem""]",[3],False,True,False,,500,6.0,4.0
+75951597,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""penguin46"", ""kovi"", ""ush""]",[1],False,True,False,,500,6.0,4.0
+75952877,4,325,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Artem"", ""lookaside"", ""Orbital Occle""]",[0],False,True,False,,500,6.0,4.0
+75953448,4,312,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""jack gell"", ""ymg_aq"", ""3Comets""]",[2],False,True,False,,500,6.0,4.0
+75953848,4,179,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Ousagi"", ""Wenchong Huang"", ""Orbit Team""]",[3],False,True,False,,500,6.0,4.0
+75955697,2,98,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+75955828,4,202,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""monnu"", ""Forrest"", ""Claws"", ""Erfan Eshratifar""]",[3],False,True,False,,500,6.0,4.0
+75956569,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""Gemini & Claude Code""]",[1],True,False,False,,500,6.0,4.0
+75957576,4,183,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""kovi"", ""mtmr_s1"", ""Ascalon""]",[1],False,True,False,,500,6.0,4.0
+75957597,4,185,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""mtmr_s1"", ""ymg_aq"", ""Wenchong Huang""]",[3],False,True,False,,500,6.0,4.0
+75957995,2,113,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""bowwowforeach""]",[1],True,False,False,,500,6.0,4.0
+75958272,4,227,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""sash"", ""Wenchong Huang"", ""ShunkiKyoya"", ""ymg_aq""]",[1],False,True,False,,500,6.0,4.0
+75959127,2,304,"[1, -1]","[""DONE"", ""DONE""]","[""Slawek Biel"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+75959329,4,191,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""HY2017"", ""Orbit Team"", ""ymg_aq"", ""Ebi""]",[0],False,True,False,,500,6.0,4.0
+75959429,4,172,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ra5anchor"", ""flg"", ""burgundy"", ""Orbit Team""]",[1],False,True,False,,500,6.0,4.0
+75963673,4,145,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""jack gell"", ""HY2017"", ""Ezra""]",[1],False,True,False,,500,6.0,4.0
+75963835,4,202,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""HY2017"", ""Erik Kvanli"", ""ush""]",[2],False,True,False,,500,6.0,4.0
+75963839,4,163,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""flg"", ""sash"", ""SalvadorDali"", ""Orbital Occle""]",[0],False,True,False,,500,6.0,4.0
+75963975,2,187,"[1, -1]","[""DONE"", ""DONE""]","[""jack gell"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+75964397,4,272,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""bowwowforeach"", ""Vadasz"", ""Erfan Eshratifar"", ""Shun_PI""]",[1],False,True,False,,500,6.0,4.0
+75964594,4,260,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""Ezra"", ""Son Pham"", ""ymg_aq""]",[2],False,True,False,,500,6.0,4.0
+75964932,2,178,"[1, -1]","[""DONE"", ""DONE""]","[""lookaside"", ""NANACHI""]",[0],True,False,False,,500,6.0,4.0
+75967247,4,200,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SalvadorDali"", ""3Comets"", ""Ebi"", ""Aidan P5""]",[2],False,True,False,,500,6.0,4.0
+75969960,2,500,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+75970255,2,150,"[1, -1]","[""DONE"", ""DONE""]","[""Ebi"", ""SalvadorDali""]",[0],True,False,False,,500,6.0,4.0
+75970330,2,157,"[1, -1]","[""DONE"", ""DONE""]","[""Orbit Team"", ""Ezra""]",[0],True,False,False,,500,6.0,4.0
+75970563,4,281,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erik Kvanli"", ""fgwiebfaoish"", ""Son Pham"", ""flg""]",[3],False,True,False,,500,6.0,4.0
+75972657,2,153,"[1, -1]","[""DONE"", ""DONE""]","[""\u8d75\u4e91\u9f99"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+75972841,2,152,"[-1, 1]","[""DONE"", ""DONE""]","[""flg"", ""sash""]",[1],True,False,False,,500,6.0,4.0
+75974716,4,260,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Qixiu"", ""lookaside"", ""skalermo"", ""ginster""]",[2],False,True,False,,500,6.0,4.0
+75976337,2,219,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""Leszek G\u00f3ra""]",[1],True,False,False,,500,6.0,4.0
+75979513,2,127,"[-1, 1]","[""DONE"", ""DONE""]","[""ra5anchor"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+75984949,2,192,"[1, -1]","[""DONE"", ""DONE""]","[""Leszek G\u00f3ra"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+75991087,4,257,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erik Kvanli"", ""\u8d75\u4e91\u9f99"", ""skuro0315"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+75994516,4,190,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erik Kvanli"", ""Ousagi"", ""Andrew Tratz"", ""Ezra""]",[3],False,True,False,,500,6.0,4.0
+75995072,4,140,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""HY2017"", ""Shun_PI"", ""Wenchong Huang""]",[3],False,True,False,,500,6.0,4.0
+75995342,2,214,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+75995655,4,177,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""klog"", ""sash"", ""Shun_PI""]",[2],False,True,False,,500,6.0,4.0
+75996990,4,375,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""Ebi"", ""bowwowforeach"", ""kovi""]",[3],False,True,False,,500,6.0,4.0
+75997234,2,143,"[-1, 1]","[""DONE"", ""DONE""]","[""Ezra"", ""Shun_PI""]",[1],True,False,False,,500,6.0,4.0
+75997519,4,248,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbit Team"", ""HY2017"", ""sash""]",[1],False,True,False,,500,6.0,4.0
+75998277,2,129,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+75998641,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""flg"", ""Artem"", ""sash""]",[0],False,True,False,,500,6.0,4.0
+75998767,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ebi"", ""sash"", ""Andrew Tratz"", ""ShunkiKyoya""]",[2],False,True,False,,500,6.0,4.0
+75999774,2,91,"[1, -1]","[""DONE"", ""DONE""]","[""bowwowforeach"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+76003630,4,174,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""Roy Wei"", ""c-number"", ""Son Pham""]",[3],False,True,False,,500,6.0,4.0
+76004820,4,209,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Aidan P5"", ""lookaside"", ""Son Pham"", ""penguin46""]",[3],False,True,False,,500,6.0,4.0
+76011170,4,195,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""Orbit Team"", ""flg"", ""HY2017""]",[3],False,True,False,,500,6.0,4.0
+76012428,2,160,"[-1, 1]","[""DONE"", ""DONE""]","[""sash"", ""Erfan Eshratifar""]",[1],True,False,False,,500,6.0,4.0
+76020372,2,174,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""chenyfsusjje""]",[1],True,False,False,,500,6.0,4.0
+76022872,2,187,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+76023273,2,105,"[-1, 1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""Claws""]",[1],True,False,False,,500,6.0,4.0
+76032198,4,157,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""IA2"", ""fgwiebfaoish"", ""ra5anchor"", ""burgundy""]",[3],False,True,False,,500,6.0,4.0
+76032608,2,86,"[1, -1]","[""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Shun_PI""]",[0],True,False,False,,500,6.0,4.0
+76039927,4,176,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""Shun_PI"", ""mtmr_s1"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76041054,4,311,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Son Pham"", ""fgwiebfaoish"", ""skuro0315""]",[0],False,True,False,,500,6.0,4.0
+76042700,2,143,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""mtmr_s1""]",[1],True,False,False,,500,6.0,4.0
+76042942,2,142,"[-1, 1]","[""DONE"", ""DONE""]","[""Ousagi"", ""skuro0315""]",[1],True,False,False,,500,6.0,4.0
+76044105,4,182,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""mtmr_s1"", ""Ousagi"", ""ush"", ""c-number""]",[2],False,True,False,,500,6.0,4.0
+76045205,2,206,"[1, -1]","[""DONE"", ""DONE""]","[""Emre"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+76045306,2,142,"[1, -1]","[""DONE"", ""DONE""]","[""skuro0315"", ""fgwiebfaoish""]",[0],True,False,False,,500,6.0,4.0
+76048458,4,232,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""skuro0315"", ""Ousagi"", ""if_else_wins"", ""kovi""]",[0],False,True,False,,500,6.0,4.0
+76050389,2,120,"[1, -1]","[""DONE"", ""DONE""]","[""Gemini & Claude Code"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+76056672,4,353,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Tommy Barnes"", ""Ousagi"", ""Artem"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76056759,2,172,"[1, -1]","[""DONE"", ""DONE""]","[""ush"", ""Erfan Eshratifar""]",[0],True,False,False,,500,6.0,4.0
+76057451,2,459,"[1, -1]","[""DONE"", ""DONE""]","[""Shun_PI"", ""Andrew Tratz""]",[0],True,False,False,,500,6.0,4.0
+76057722,2,198,"[1, -1]","[""DONE"", ""DONE""]","[""ush"", ""Erfan Eshratifar""]",[0],True,False,False,,500,6.0,4.0
+76059391,4,111,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Hung Nguyen"", ""lookaside"", ""Roy Wei"", ""Xiangyu Liu""]",[3],False,True,False,,500,6.0,4.0
+76063562,4,223,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Shun_PI"", ""klog"", ""Erfan Eshratifar""]",[2],False,True,False,,500,6.0,4.0
+76063621,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""kovi"", ""Shun_PI"", ""ra5anchor""]",[2],False,True,False,,500,6.0,4.0
+76064593,2,127,"[1, -1]","[""DONE"", ""DONE""]","[""SalvadorDali"", ""Son Pham""]",[0],True,False,False,,500,6.0,4.0
+76066636,4,281,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Son Pham"", ""Slawek Biel"", ""Ascalon""]",[2],False,True,False,,500,6.0,4.0
+76067195,4,360,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""siman"", ""Orbital Occle"", ""Nandodemo"", ""jack gell""]",[3],False,True,False,,500,6.0,4.0
+76069664,4,153,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Vadasz"", ""Andrew Tratz"", ""Shun_PI"", ""Erfan Eshratifar""]",[0],False,True,False,,500,6.0,4.0
+76071073,2,127,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""sary sary""]",[1],True,False,False,,500,6.0,4.0
+76071285,4,164,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Forrest"", ""Orbit Team"", ""fgwiebfaoish"", ""SalvadorDali""]",[2],False,True,False,,500,6.0,4.0
+76076198,4,131,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Wenchong Huang"", ""fgwiebfaoish"", ""siman"", ""Ascalon""]",[0],False,True,False,,500,6.0,4.0
+76079057,2,183,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Klgv Klgv""]",[0],True,False,False,,500,6.0,4.0
+76083186,4,171,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""koh"", ""Yunioshi"", ""keyrox"", ""Andrew Tratz""]",[2],False,True,False,,500,6.0,4.0
+76086202,4,159,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""ra5anchor"", ""Erik Kvanli"", ""Erfan Eshratifar""]",[3],False,True,False,,500,6.0,4.0
+76089271,2,149,"[-1, 1]","[""DONE"", ""DONE""]","[""burgundy"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+76090421,4,195,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Forrest"", ""ktr"", ""linrock"", ""Andrew Tratz""]",[0],False,True,False,,500,6.0,4.0
+76093064,2,136,"[-1, 1]","[""DONE"", ""DONE""]","[""Yunioshi"", ""Andrew Tratz""]",[1],True,False,False,,500,6.0,4.0
+76093236,4,219,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Roy Wei"", ""gasin"", ""Vincent Schuler""]",[1],False,True,False,,500,6.0,4.0
+76094449,4,193,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""HY2017"", ""Son Pham"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76094900,4,120,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erik Kvanli"", ""Son Pham"", ""Artem"", ""Ousagi""]",[1],False,True,False,,500,6.0,4.0
+76096057,4,192,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ousagi"", ""Akira Hirohashi"", ""Cameron Magari"", ""Alexander Gremyakov""]",[2],False,True,False,,500,6.0,4.0
+76100053,4,175,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""if_else_wins"", ""Erik Kvanli"", ""Mille Initiate"", ""fgwiebfaoish""]",[2],False,True,False,,500,6.0,4.0
+76100756,2,195,"[1, -1]","[""DONE"", ""DONE""]","[""Wenchong Huang"", ""Ousagi""]",[0],True,False,False,,500,6.0,4.0
+76101203,2,80,"[1, -1]","[""DONE"", ""DONE""]","[""jack gell"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76101936,4,194,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ShunkiKyoya"", ""Shun_PI"", ""Orbit Team"", ""jack gell""]",[2],False,True,False,,500,6.0,4.0
+76106874,2,153,"[1, -1]","[""DONE"", ""DONE""]","[""ymg_aq"", ""fgwiebfaoish""]",[0],True,False,False,,500,6.0,4.0
+76108868,4,291,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ginster"", ""Naoism"", ""sary sary"", ""fgwiebfaoish""]",[1],False,True,False,,500,6.0,4.0
+76109496,2,367,"[-1, 1]","[""DONE"", ""DONE""]","[""Andrew + SalvadorDali"", ""Viltrum Empire""]",[1],True,False,False,,500,6.0,4.0
+76110823,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ra5anchor"", ""Aidan P5"", ""fgwiebfaoish"", ""penguin46""]",[2],False,True,False,,500,6.0,4.0
+76114066,4,247,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Naoism"", ""Andrew + SalvadorDali"", ""TensorFlower"", ""simmons1025""]",[3],False,True,False,,500,6.0,4.0
+76115985,2,123,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Erik Kvanli""]",[0],True,False,False,,500,6.0,4.0
+76116994,4,299,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""3Comets"", ""dnish"", ""Orbital Occle"", ""Claws""]",[2],False,True,False,,500,6.0,4.0
+76117280,4,167,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Viltrum Empire"", ""jack gell"", ""Orbital Occle"", ""ShunkiKyoya""]",[0],False,True,False,,500,6.0,4.0
+76121210,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""skuro0315"", ""Orbital Occle"", ""skalermo""]",[0],False,True,False,,500,6.0,4.0
+76123767,4,221,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""c-number"", ""TensorFlower"", ""Erik Kvanli""]",[2],False,True,False,,500,6.0,4.0
+76124992,4,212,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Vadasz"", ""jack gell"", ""Naoism""]",[2],False,True,False,,500,6.0,4.0
+76126715,4,182,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""klog"", ""Orbital Occle"", ""Qixiu"", ""Tommy Barnes""]",[3],False,True,False,,500,6.0,4.0
+76126728,4,214,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""K_ChanHo"", ""Seungmin Ha"", ""w0t0"", ""lookaside""]",[1],False,True,False,,500,6.0,4.0
+76126831,4,190,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Naoism"", ""ush"", ""Boey"", ""Son Pham""]",[0],False,True,False,,500,6.0,4.0
+76126973,2,167,"[1, -1]","[""DONE"", ""DONE""]","[""Ezra"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76126987,2,149,"[1, -1]","[""DONE"", ""DONE""]","[""Tommy Barnes"", ""Andrew + SalvadorDali""]",[0],True,False,False,,500,6.0,4.0
+76128697,4,111,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit Team"", ""Tommy Barnes"", ""ktr"", ""ush""]",[1],False,True,False,,500,6.0,4.0
+76132264,4,255,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""fgwiebfaoish"", ""Erfan Eshratifar"", ""HY2017""]",[0],False,True,False,,500,6.0,4.0
+76134185,4,500,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Son Pham"", ""Viltrum Empire"", ""ush"", ""if_else_wins""]",[0],False,True,False,,500,6.0,4.0
+76135954,2,135,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""if_else_wins""]",[1],True,False,False,,500,6.0,4.0
+76139036,2,141,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Yunioshi""]",[1],True,False,False,,500,6.0,4.0
+76140744,4,279,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Viltrum Empire"", ""Wenchong Huang"", ""penguin46"", ""fgwiebfaoish""]",[2],False,True,False,,500,6.0,4.0
+76147844,4,114,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Bangrocket"", ""Xiangyu Liu"", ""c0sm1c"", ""lookaside""]",[3],False,True,False,,500,6.0,4.0
+76151155,2,183,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""Eda""]",[1],True,False,False,,500,6.0,4.0
+76151331,4,272,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Claws"", ""Erik Kvanli"", ""ush""]",[2],False,True,False,,500,6.0,4.0
+76155798,2,146,"[1, -1]","[""DONE"", ""DONE""]","[""Erik Kvanli"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76156832,4,336,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Tommy Barnes"", ""Ousagi"", ""penguin46"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76157049,4,296,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Kirderf"", ""Mathurin Ache"", ""Van-Phuc Huynh"", ""lookaside""]",[3],False,True,False,,500,6.0,4.0
+76161698,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""istinetz"", ""fgwiebfaoish"", ""mrmvrey"", ""Hober Malloc""]",[1],False,True,False,,500,6.0,4.0
+76162286,2,168,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Ousagi""]",[1],True,False,False,,500,6.0,4.0
+76164392,4,127,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ginster"", ""ush"", ""klog"", ""ra5anchor""]",[0],False,True,False,,500,6.0,4.0
+76166997,2,116,"[1, -1]","[""DONE"", ""DONE""]","[""klog"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+76168171,2,100,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Tommy Barnes""]",[0],True,False,False,,500,6.0,4.0
+76169387,2,173,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Son Pham""]",[1],True,False,False,,500,6.0,4.0
+76176665,2,147,"[1, -1]","[""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76177556,4,145,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""ush"", ""\u8d75\u4e91\u9f99"", ""HassenHamdi Winning InchaAllah""]",[0],False,True,False,,500,6.0,4.0
+76177692,4,149,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Erfan Eshratifar"", ""Son Pham"", ""Shun_PI""]",[1],False,True,False,,500,6.0,4.0
+76185100,4,440,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Howler One"", ""YG JH"", ""lookaside"", ""PavelYanson""]",[3],False,True,False,,500,6.0,4.0
+76193676,4,179,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""NewTechMitch"", ""claudex"", ""Amin Ebrahimzadeh"", ""lookaside""]",[0],False,True,False,,500,6.0,4.0
+76194670,4,190,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Aidan P5"", ""if_else_wins"", ""Son Pham""]",[0],False,True,False,,500,6.0,4.0
+76195833,4,153,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Hober Malloc"", ""Vincent Schuler"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76198561,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Hailstorm"", ""if_else_wins"", ""ra5anchor""]",[2],False,True,False,,500,6.0,4.0
+76198576,4,136,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""penguin46"", ""Son Pham"", ""sary sary"", ""ush""]",[2],False,True,False,,500,6.0,4.0
+76201225,2,186,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli""]",[0],True,False,False,,500,6.0,4.0
+76202954,2,119,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""Claws""]",[1],True,False,False,,500,6.0,4.0
+76205493,4,204,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""AnRyisReal"", ""Yunioshi"", ""Claws"", ""ush""]",[3],False,True,False,,500,6.0,4.0
+76207317,4,129,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""Yunioshi"", ""penguin46"", ""3Comets""]",[3],False,True,False,,500,6.0,4.0
+76216031,4,131,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""3Comets"", ""Ethan Tang"", ""fgwiebfaoish"", ""SonOfNike""]",[0],False,True,False,,500,6.0,4.0
+76216437,2,152,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+76224773,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Aidan P5"", ""Klgv Klgv"", ""typeIIIfairy"", ""fgwiebfaoish""]",[3],False,True,False,,500,6.0,4.0
+76227451,2,238,"[1, -1]","[""DONE"", ""DONE""]","[""Roche Overflow"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+76227620,4,293,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Alvin"", ""Ashu Rajput"", ""lookaside"", ""Pasha Burnyshev""]",[2],False,True,False,,500,6.0,4.0
+76229337,4,182,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""typeIIIfairy"", ""YUYUTA"", ""Nandodemo""]",[0],False,True,False,,500,6.0,4.0
+76232310,4,139,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shunsuke Hayashi"", ""Ralph Neumann"", ""lookaside"", ""Taiki Sato""]",[0],False,True,False,,500,6.0,4.0
+76238738,4,208,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""penguin46"", ""mtmr_s1"", ""Orbital Occle"", ""TensorFlower""]",[3],False,True,False,,500,6.0,4.0
+76240663,4,214,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""ra5anchor"", ""siman"", ""typeIIIfairy""]",[1],False,True,False,,500,6.0,4.0
+76240675,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Nandodemo"", ""Orbital Occle"", ""Hailstorm"", ""istinetz""]",[1],False,True,False,,500,6.0,4.0
+76241304,4,280,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli"", ""Ousagi"", ""HY2017""]",[2],False,True,False,,500,6.0,4.0
+76242405,2,157,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Hailstorm""]",[0],True,False,False,,500,6.0,4.0
+76243092,2,203,"[1, -1]","[""DONE"", ""DONE""]","[""Erik Kvanli"", ""fgwiebfaoish""]",[0],True,False,False,,500,6.0,4.0
+76247232,4,158,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""if_else_wins"", ""typeIIIfairy"", ""jack gell"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0
+76247605,4,239,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Aidan P5"", ""ush"", ""Kevin Cao"", ""Yunioshi""]",[0],False,True,False,,500,6.0,4.0
+76249460,2,185,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""Kevin Cao""]",[1],True,False,False,,500,6.0,4.0
+76255902,2,167,"[-1, 1]","[""DONE"", ""DONE""]","[""Hailstorm"", ""ush""]",[1],True,False,False,,500,6.0,4.0
+76257210,4,203,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""penguin46"", ""bomac1"", ""Slawek Biel"", ""ush""]",[0],False,True,False,,500,6.0,4.0
+76257789,4,182,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""ichiro_9023"", ""Viltrum Empire"", ""ush""]",[0],False,True,False,,500,6.0,4.0
+76258762,2,151,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""Hailstorm""]",[1],True,False,False,,500,6.0,4.0
+76259847,2,205,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Slawek Biel""]",[0],True,False,False,,500,6.0,4.0
+76263558,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""skuro0315"", ""Erfan Eshratifar"", ""fgwiebfaoish""]",[3],False,True,False,,500,6.0,4.0
+76271980,4,198,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""unosss"", ""Roche Overflow"", ""fgwiebfaoish"", ""Son Pham""]",[2],False,True,False,,500,6.0,4.0
+76275892,2,142,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""burgundy""]",[0],True,False,False,,500,6.0,4.0
+76276130,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""pbdpbd123"", ""lookaside"", ""Carrotato"", ""Afr1ste""]",[1],False,True,False,,500,6.0,4.0
+76279421,4,327,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""sash"", ""Orbital Occle"", ""ymg_aq"", ""Tommy Barnes""]",[0],False,True,False,,500,6.0,4.0
+76281340,4,212,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Son Pham"", ""Claws"", ""Orbital Occle"", ""Aidan P5""]",[3],False,True,False,,500,6.0,4.0
+76282382,4,500,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Erik Kvanli"", ""ShunkiKyoya"", ""Orbital Occle"", ""ymg_aq""]",[3],False,True,False,,500,6.0,4.0
+76287943,4,350,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""\u5bff!"", ""shilehaoduomingzile"", ""K_ChanHo""]",[1],False,True,False,,500,6.0,4.0
+76292858,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Audun Ljone Henriksen"", ""skuro0315"", ""Roche Overflow""]",[2],False,True,False,,500,6.0,4.0
+76293330,4,167,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""nesya"", ""COSMIC"", ""fgwiebfaoish"", ""Praxel""]",[1],False,True,False,,500,6.0,4.0
+76296024,4,319,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Shun_PI"", ""Ezra"", ""Orbital Occle"", ""lookaside""]",[3],False,True,False,,500,6.0,4.0
+76301352,4,159,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Hober Malloc"", ""Orbital Occle"", ""if_else_wins"", ""Viltrum Empire""]",[1],False,True,False,,500,6.0,4.0
+76303822,4,272,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""COSMIC"", ""TensorFlower"", ""ohkawa3"", ""ush""]",[2],False,True,False,,500,6.0,4.0
+76312376,2,123,"[-1, 1]","[""DONE"", ""DONE""]","[""monnu"", ""Orbital Occle""]",[1],True,False,False,,500,6.0,4.0
+76317443,4,205,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""monnu"", ""koh"", ""fgwiebfaoish"", ""DONJYARAHOI""]",[2],False,True,False,,500,6.0,4.0
+76319914,2,118,"[1, -1]","[""DONE"", ""DONE""]","[""Erfan Eshratifar"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76324744,4,184,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""YUYUTA"", ""fgwiebfaoish"", ""Klgv Klgv"", ""glass_256""]",[3],False,True,False,,500,6.0,4.0
+76324976,2,155,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Viltrum Empire""]",[0],True,False,False,,500,6.0,4.0
+76334869,4,249,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Viltrum Empire"", ""linrock"", ""unosss"", ""fgwiebfaoish""]",[3],False,True,False,,500,6.0,4.0
+76336072,4,138,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""TensorFlower"", ""if_else_wins"", ""Orbital Occle"", ""Erik Kvanli""]",[3],False,True,False,,500,6.0,4.0
+76338140,4,133,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Artem"", ""Orbital Occle"", ""ShunkiKyoya"", ""dnish""]",[3],False,True,False,,500,6.0,4.0
+76338445,2,281,"[1, -1]","[""DONE"", ""DONE""]","[""Artem"", ""fgwiebfaoish""]",[0],True,False,False,,500,6.0,4.0
+76341498,2,185,"[1, -1]","[""DONE"", ""DONE""]","[""Roche Overflow"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76344335,2,216,"[-1, 1]","[""DONE"", ""DONE""]","[""\u8036\u270c"", ""fgwiebfaoish""]",[1],True,False,False,,500,6.0,4.0
+76345723,4,187,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""ush"", ""if_else_wins"", ""Forrest"", ""glass_256""]",[2],False,True,False,,500,6.0,4.0
+76353192,2,208,"[1, -1]","[""DONE"", ""DONE""]","[""ush"", ""Robert Cheah""]",[0],True,False,False,,500,6.0,4.0
+76354266,2,206,"[1, -1]","[""DONE"", ""DONE""]","[""Erik Kvanli"", ""Orbital Occle""]",[0],True,False,False,,500,6.0,4.0
+76358451,4,186,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""outwrest"", ""Jenai"", ""Paul Owiti"", ""lookaside""]",[2],False,True,False,,500,6.0,4.0
+76359751,4,330,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Amin Ebrahimzadeh"", ""Blu3s"", ""HKmgikao"", ""lookaside""]",[2],False,True,False,,500,6.0,4.0
+76360514,2,155,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Erik Kvanli""]",[1],True,False,False,,500,6.0,4.0
+76364693,2,187,"[-1, 1]","[""DONE"", ""DONE""]","[""Pazuzu"", ""lookaside""]",[1],True,False,False,,500,6.0,4.0
+76369073,2,222,"[1, -1]","[""DONE"", ""DONE""]","[""Adam Vajda"", ""lookaside""]",[0],True,False,False,,500,6.0,4.0
+76369368,2,202,"[1, -1]","[""DONE"", ""DONE""]","[""Komil Parmar"", ""ush""]",[0],True,False,False,,500,6.0,4.0
+76379566,4,329,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Anti"", ""lookaside"", ""C&J"", ""Alfaxad""]",[1],False,True,False,,500,6.0,4.0
+76395944,4,500,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Scotty B"", ""Audun Ljone Henriksen"", ""Ceshine Lee"", ""ush""]",[1],False,True,False,,500,6.0,4.0
+76397269,2,286,"[-1, 1]","[""DONE"", ""DONE""]","[""ush"", ""TensorFlower""]",[1],True,False,False,,500,6.0,4.0
+76404318,4,237,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""monnu"", ""fgwiebfaoish"", ""if_else_wins"", ""mason McClintic""]",[0],False,True,False,,500,6.0,4.0
+76404703,4,187,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""monnu"", ""wala"", ""Orbital Occle"", ""mtmr_s1""]",[2],False,True,False,,500,6.0,4.0
+76405377,4,227,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Ezra"", ""TensorFlower"", ""klog"", ""fgwiebfaoish""]",[2],False,True,False,,500,6.0,4.0
+76408494,2,108,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Audun Ljone Henriksen""]",[1],True,False,False,,500,6.0,4.0
+76416544,4,242,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Slawek Biel"", ""sary sary"", ""ush"", ""DONJYARAHOI""]",[2],False,True,False,,500,6.0,4.0
+76417215,4,163,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""SQLRockstar"", ""ush"", ""TensorFlower"", ""Saicharan Ramineni""]",[2],False,True,False,,500,6.0,4.0
+76421250,2,217,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""tomo0608""]",[1],True,False,False,,500,6.0,4.0
+76432784,4,125,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""koh"", ""Himeno"", ""ush"", ""Leszek G\u00f3ra""]",[2],False,True,False,,500,6.0,4.0
+76435455,4,237,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""saihyou"", ""Ceshine Lee"", ""Qixiu"", ""fgwiebfaoish""]",[2],False,True,False,,500,6.0,4.0
+76443885,4,197,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""lookaside"", ""Thomas Greissler"", ""mogura2.0"", ""Adarsh Sharma""]",[3],False,True,False,,500,6.0,4.0
+76448561,2,211,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Artem""]",[1],True,False,False,,500,6.0,4.0
+76451682,2,124,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Forrest""]",[0],True,False,False,,500,6.0,4.0
+76453508,2,138,"[-1, 1]","[""DONE"", ""DONE""]","[""lookaside"", ""Sangram Patil""]",[1],True,False,False,,500,6.0,4.0
+76475049,4,196,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""wala"", ""fgwiebfaoish"", ""TonyK"", ""mtmr_s1""]",[2],False,True,False,,500,6.0,4.0
+76475658,4,128,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""sash"", ""Orbital Occle"", ""Shun_PI"", ""Erik Kvanli""]",[3],False,True,False,,500,6.0,4.0
+76476141,4,143,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""jack gell"", ""Ousagi"", ""sash"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0
+76480194,4,270,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbit_flexer"", ""xiao long745"", ""lookaside"", ""w0t0""]",[1],False,True,False,,500,6.0,4.0
+76480597,4,141,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Hailstorm"", ""Orbital Occle"", ""Forrest"", ""wala""]",[1],False,True,False,,500,6.0,4.0
+76481945,2,114,"[1, -1]","[""DONE"", ""DONE""]","[""lookaside"", ""SeaEag1e""]",[0],True,False,False,,500,6.0,4.0
+76483783,4,500,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""DustyRusty"", ""fgwiebfaoish"", ""3Comets"", ""if_else_wins""]",[2],False,True,False,,500,6.0,4.0
+76489368,4,223,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Roche Overflow"", ""Kevin Cao"", ""fgwiebfaoish"", ""Nandodemo""]",[0],False,True,False,,500,6.0,4.0
+76501130,4,150,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""klog"", ""skalermo"", ""Roche Overflow""]",[1],False,True,False,,500,6.0,4.0
+76501532,2,194,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Roche Overflow""]",[0],True,False,False,,500,6.0,4.0
+76509046,2,217,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""Galatea of the Spheres""]",[1],True,False,False,,500,6.0,4.0
+76510627,4,265,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Daehyeon12"", ""fishcat"", ""lookaside"", ""Robert Cheah""]",[3],False,True,False,,500,6.0,4.0
+76516585,4,183,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""vkhydras"", ""fgwiebfaoish"", ""DONJYARAHOI"", ""KTakashina""]",[1],False,True,False,,500,6.0,4.0
+76527854,2,150,"[-1, 1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""213tubo""]",[1],True,False,False,,500,6.0,4.0
+76528949,2,125,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Artem""]",[1],True,False,False,,500,6.0,4.0
+76538468,4,240,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""chen Jack12"", ""lookaside"", ""Troups"", ""W Squared""]",[2],False,True,False,,500,6.0,4.0
+76538658,4,261,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""\u8d75\u4e91\u9f99"", ""Kha Vo"", ""\ud83d\udef0\ufe0f Low-Orbit Losers""]",[3],False,True,False,,500,6.0,4.0
+76546430,4,197,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""linrock"", ""mrmvrey"", ""TensorFlower"", ""fgwiebfaoish""]",[2],False,True,False,,500,6.0,4.0
+76559251,2,291,"[-1, 1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""TensorFlower""]",[1],True,False,False,,500,6.0,4.0
+76593975,4,312,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""cmmc27"", ""lookaside"", ""KTakashina"", ""Oliver Wang""]",[0],False,True,False,,500,6.0,4.0
+76601546,2,112,"[1, -1]","[""DONE"", ""DONE""]","[""Orbital Occle"", ""mmath2""]",[0],True,False,False,,500,6.0,4.0
+76615970,4,143,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""TensorFlower"", ""Orbital Occle"", ""you don't need RL"", ""ush""]",[3],False,True,False,,500,6.0,4.0
+76623067,4,197,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Orbital Occle"", ""Forrest"", ""mmath2"", ""skuro0315""]",[2],False,True,False,,500,6.0,4.0
+76632857,4,152,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""jack gell"", ""Orbital Occle"", ""istinetz"", ""bomac1""]",[0],False,True,False,,500,6.0,4.0
+76638881,4,205,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""fgwiebfaoish"", ""Sheeesh---"", ""Viltrum Empire"", ""Claws""]",[3],False,True,False,,500,6.0,4.0
+76645729,4,206,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Aidan P5"", ""ra5anchor"", ""Orbital Occle"", ""Claws""]",[3],False,True,False,,500,6.0,4.0
+76657754,4,204,"[-1, 1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Stands for one and only"", ""kglctf"", ""lookaside"", ""Sam Harrington""]",[1],False,True,False,,500,6.0,4.0
+76670723,2,139,"[1, -1]","[""DONE"", ""DONE""]","[""fgwiebfaoish"", ""HY2017""]",[0],True,False,False,,500,6.0,4.0
+76674529,4,219,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""mtmr_s1"", ""HY2017"", ""Orbital Occle"", ""ShunkiKyoya""]",[3],False,True,False,,500,6.0,4.0
+76682997,4,228,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Caiden Matthews"", ""Slawek Biel"", ""monnu"", ""Orbital Occle""]",[3],False,True,False,,500,6.0,4.0
+76686494,4,227,"[1, -1, -1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Yunioshi"", ""Emre"", ""ush"", ""fgwiebfaoish""]",[0],False,True,False,,500,6.0,4.0
+76697550,4,143,"[-1, -1, -1, 1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""sary sary"", ""Orbital Occle"", ""ush"", ""Mendrika Ramarlina""]",[3],False,True,False,,500,6.0,4.0
+76744055,4,189,"[-1, -1, 1, -1]","[""DONE"", ""DONE"", ""DONE"", ""DONE""]","[""Kevin Cao"", ""lookaside"", ""sary sary"", ""Orbital Occle""]",[2],False,True,False,,500,6.0,4.0

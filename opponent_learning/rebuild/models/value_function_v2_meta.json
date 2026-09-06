@@ -1,0 +1,159 @@
+{
+  "overall": {
+    "auc": 0.9063,
+    "logloss": 0.3385,
+    "brier": 0.1091,
+    "acc": 0.8436,
+    "n": 54184,
+    "pos_rate": 0.3077
+  },
+  "baselines": {
+    "constant": {
+      "auc": 0.5,
+      "logloss": 0.6172,
+      "brier": 0.213,
+      "acc": 0.6923,
+      "n": 54184,
+      "pos_rate": 0.3077
+    },
+    "linear_5m": {
+      "auc": 0.9039,
+      "logloss": 0.34,
+      "brier": 0.1111,
+      "acc": 0.8368,
+      "n": 54184,
+      "pos_rate": 0.3077
+    },
+    "xgb_5m": {
+      "auc": 0.9054,
+      "logloss": 0.3427,
+      "brier": 0.1096,
+      "acc": 0.8428,
+      "n": 54184,
+      "pos_rate": 0.3077
+    }
+  },
+  "lift": {
+    "auc_lift_over_constant": 0.4063,
+    "auc_lift_over_linear": 0.0024,
+    "auc_lift_over_xgb_macro": 0.0009,
+    "brier_redux_over_constant": 0.4878
+  },
+  "by_phase": {
+    "q1_early": {
+      "auc": 0.6931,
+      "logloss": 0.5707,
+      "brier": 0.191,
+      "acc": 0.7168,
+      "n": 13616,
+      "pos_rate": 0.3078
+    },
+    "q2_mid": {
+      "auc": 0.85,
+      "logloss": 0.4289,
+      "brier": 0.1421,
+      "acc": 0.7933,
+      "n": 13530,
+      "pos_rate": 0.3075
+    },
+    "q3_late_mid": {
+      "auc": 0.9561,
+      "logloss": 0.2485,
+      "brier": 0.0758,
+      "acc": 0.8982,
+      "n": 13460,
+      "pos_rate": 0.3075
+    },
+    "q4_late": {
+      "auc": 0.9919,
+      "logloss": 0.1049,
+      "brier": 0.027,
+      "acc": 0.9667,
+      "n": 13578,
+      "pos_rate": 0.3079
+    }
+  },
+  "by_n_players": {
+    "2": {
+      "auc": 0.9128,
+      "logloss": 0.3741,
+      "brier": 0.1244,
+      "acc": 0.8083,
+      "n": 12504,
+      "pos_rate": 0.5
+    },
+    "4": {
+      "auc": 0.8987,
+      "logloss": 0.3279,
+      "brier": 0.1044,
+      "acc": 0.8542,
+      "n": 41680,
+      "pos_rate": 0.25
+    }
+  },
+  "features": [
+    "own_ship_ratio",
+    "own_prod_ratio",
+    "own_planet_ratio",
+    "ship_gap",
+    "prod_gap",
+    "own_ships_total",
+    "own_prod_total",
+    "n_own_planets",
+    "n_neutral_planets",
+    "n_enemy_planets",
+    "enemy_ships_total",
+    "n_planets",
+    "mean_own_ships",
+    "max_own_ships",
+    "min_own_ships",
+    "std_own_ships",
+    "own_fleets_count",
+    "own_fleets_ships",
+    "enemy_fleets_count",
+    "enemy_fleets_ships",
+    "fleet_balance",
+    "proj_own_ship_ratio",
+    "proj_own_planet_ratio",
+    "proj_ship_ratio_delta",
+    "proj_planet_ratio_delta",
+    "own_under_threat_count",
+    "own_under_threat_ships",
+    "enemy_contested_count",
+    "neutral_contested_count",
+    "incoming_enemy_to_own",
+    "net_incoming_own",
+    "closest_threat_dist",
+    "mean_neutral_ships",
+    "min_neutral_ships"
+  ],
+  "macro_features": [
+    "own_ship_ratio",
+    "own_prod_ratio",
+    "own_planet_ratio",
+    "ship_gap",
+    "prod_gap"
+  ],
+  "n_train": 306404,
+  "n_val": 54184,
+  "n_train_episodes": 425,
+  "n_val_episodes": 75,
+  "top_features": {
+    "prod_gap": 0.4602000117301941,
+    "own_prod_ratio": 0.18520000576972961,
+    "ship_gap": 0.03680000081658363,
+    "own_prod_total": 0.02850000001490116,
+    "own_planet_ratio": 0.026399999856948853,
+    "own_ship_ratio": 0.017500000074505806,
+    "min_own_ships": 0.016899999231100082,
+    "enemy_fleets_count": 0.0142000000923872,
+    "proj_own_ship_ratio": 0.013899999670684338,
+    "closest_threat_dist": 0.013199999928474426,
+    "proj_own_planet_ratio": 0.01269999984651804,
+    "incoming_enemy_to_own": 0.011500000022351742,
+    "own_ships_total": 0.01140000019222498,
+    "n_own_planets": 0.010900000110268593,
+    "enemy_fleets_ships": 0.010599999688565731
+  },
+  "note": "V2: cleaned state features only (no action, no phase). Honest baseline against constant/linear/xgb_5macro. Stratified by phase and n_players."
+}

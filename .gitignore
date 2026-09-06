@@ -8,3 +8,17 @@ opponent_learning/results/launch_clusters.csv
 opponent_learning/data/processed/launches.csv
 opponent_learning/data/processed/features.csv
 opponent_learning/data/processed/steps.csv
+
+# --- macOS ---
+.DS_Store
+._*
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- крупные данные: не влезают в лимиты GitHub (100 МБ на файл) ---
+opponent_learning/data/processed/choice_sets.csv
+opponent_learning/rebuild/data/zones_features_cache.csv
+opponent_learning/data/raw/*.json
+!opponent_learning/data/raw/episodes_index.json

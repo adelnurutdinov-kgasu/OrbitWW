@@ -1,0 +1,66 @@
+{
+  "baseline": {
+    "W_OURS": {
+      "area_inv": -0.1,
+      "wnn_close_res": -0.4,
+      "mean_dist_all": -0.3,
+      "prod": 0.4,
+      "ships": 0,
+      "n_cross": 0.5,
+      "late_aggression": 0.2
+    },
+    "W_TARGETS": {
+      "area_inv": 0.4,
+      "wnn_close_res": 0.8,
+      "mean_dist_all": -0.2,
+      "prod": 0.5,
+      "ships": -0.4,
+      "n_cross": 0.4,
+      "late_aggression": 0.9
+    },
+    "metrics": {
+      "top1": 0.1326530612244898,
+      "top3": 0.3163265306122449,
+      "top5": 0.42857142857142855,
+      "top10": 0.6428571428571429,
+      "median_rank": 7.0,
+      "total_attack": 98
+    }
+  },
+  "best": {
+    "W_OURS": {
+      "area_inv": -1.4375963955982802,
+      "wnn_close_res": 0.5461249234069048,
+      "mean_dist_all": -0.5238374122376164,
+      "prod": 0.034634675333347006,
+      "ships": 0.179636715612423,
+      "n_cross": -1.1456140285026897,
+      "late_aggression": 0.02897711680328579
+    },
+    "W_TARGETS": {
+      "area_inv": 0.08834228563008512,
+      "wnn_close_res": 0.6344664728993983,
+      "mean_dist_all": 0.15233613649098968,
+      "prod": -0.2998776705844288,
+      "ships": -0.5547992092686544,
+      "n_cross": 1.4025475826479656,
+      "late_aggression": 0.4732600339184825
+    },
+    "metrics": {
+      "top1": 0.12244897959183673,
+      "top3": 0.40816326530612246,
+      "top5": 0.5204081632653061,
+      "top10": 0.6530612244897959,
+      "median_rank": 5.0,
+      "mean_rank": 7.86734693877551,
+      "total_attack": 98,
+      "total_reinforce": 92
+    }
+  },
+  "config": {
+    "sample": 400,
+    "trials": 150,
+    "target": "top3",
+    "startup": 20
+  }
+}

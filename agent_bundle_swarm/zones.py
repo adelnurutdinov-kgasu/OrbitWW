@@ -19,17 +19,25 @@ from force import (
 from shooting import TOTAL_STEPS
 
 # ── Фичи зонирования ───────────────────────────────────────────────────────
-# `late_aggression` — регуляризатор, который САМА фича не содержит phase
-# (это важно: z-score нормализация всё равно сократила бы общий множитель).
-# Фича = ripeness · deepness:
-#     ripeness = production / (1 + ships)            — «спелость»/незащищённость
-#     deepness = mean_dist(target, our_planets)      — глубина в тылу врага
-# А phase = step / TOTAL_STEPS (∈ [0, 1]) применяется НА УРОВНЕ ВЕСА в
-# compute_zones: эффективный вес = w_phase * W_TARGETS['late_aggression'].
-# Так в Q1 вклад ≈ 0 (фича не работает), в Q4 — полный, и z-score не убивает
-# разницу между фазами.
+# Эмпирический анализ 270k запусков (500 реплеев, топ-игроки, 2025-05):
+#
+# late_aggression = ripeness × deepness
+#   ripeness = production / (1 + ships)         — «спелость»/незащищённость
+#   deepness = mean_dist(target, our_planets)   — глубина в тылу врага
+#
+# ripeness — добавлена как самостоятельная фича (эмп. вес: +0.9 neutral, +2.9 enemy)
+#
+# phase = step / TOTAL_STEPS применяется НА УРОВНЕ ВЕСА в compute_zones:
+#   эффективный вес = phase × W['late_aggression']
+#   → early-game вклад ≈ 0, late-game — полный, z-score не съедает разницу.
+#
+# Разделены W_TARGETS_NEUTRAL и W_TARGETS_ENEMY — ключевое различие:
+#   neutral: late_aggression ПОЗИТИВНЫЙ (глубокие нейтральные = стратегические позиции)
+#   enemy:   late_aggression НЕГАТИВНЫЙ (60% атак и топ-игроки предпочитают близких врагов)
 ZONE_FEATURES = ['area_inv', 'wnn_close_res', 'mean_dist_all', 'prod', 'ships',
-                 'n_cross', 'late_aggression']
+                 'n_cross', 'late_aggression', 'ripeness']
+
+_NEUTRAL_OWNER = -1   # магический owner для нейтральных планет в движке
 
 W_OURS = {
     'area_inv':        -0.1,
@@ -38,22 +46,45 @@ W_OURS = {
     'prod':            +0.4,
     'ships':           0,
     'n_cross':         +0.9,
-    'late_aggression':  -0.2,   # для своих планет смысла не несёт
+    'late_aggression': -0.2,
+    'ripeness':        +0.0,   # для своих планет не актуально
 }
-W_TARGETS = {
+
+# ── Веса для НЕЙТРАЛЬНЫХ целей ──────────────────────────────────────────────
+# late_aggression ПОЗИТИВНЫЙ: победа коррелирует с захватом глубоких нейтральных
+# (стратегические позиции ценнее чем ближние).
+# Корреляция rel_late_agg с victory: +0.13 early, +0.09 mid, +0.07 late
+W_TARGETS_NEUTRAL = {
     'area_inv':        +0.4,
-    'wnn_close_res':   +0.8,    # confirmed by per-launch analysis (270k launches, 500 replays)
-    'mean_dist_all':   -0.4,    # strengthened: empirical -0.76 neutral, -0.34 enemy
-    'prod':            +0.5,    # confirmed ✓
-    'ships':           -0.5,    # confirmed ✓
+    'wnn_close_res':   +0.8,
+    'mean_dist_all':   -0.3,   # нейтральные: dist менее критичен чем для врага
+    'prod':            +0.5,
+    'ships':           -0.5,
     'n_cross':         +0.4,
-    'late_aggression': -0.5,    # FLIPPED from +0.9 (2025-05 empirical analysis)
-                                # 60% enemy + 50% neutral attacks prefer SHALLOW targets.
-                                # Top-reward players: median rel_late_agg = -1.91 (shallow).
-                                # Prediction accuracy: neutral 54.6% (+3.5pp), enemy 64.3% (+10pp).
-                                # phase-multiplier kept: effective weight ≈ phase × (-0.5)
-                                # TODO: add ripeness=prod/(1+ships) as separate feature (+0.9)
+    'late_aggression': +0.4,   # ПОЗИТИВНЫЙ: глубокие нейтральные = стратегическая ценность
+                               # phase-multiplier: early ≈ 0, late = +0.4
+    'ripeness':        +0.5,   # NEW: эмп. вес +0.89, растёт к mid/late
 }
+
+# ── Веса для ВРАЖЕСКИХ целей ────────────────────────────────────────────────
+# late_aggression НЕГАТИВНЫЙ: 60% атак предпочитают близких врагов,
+# топ-игроки: медиана rel_late_agg = −1.91 (сильное предпочтение близких).
+# mean_dist_all усилен: сильнейший предиктор победы (r=−0.56 в endgame).
+# Точность предсказания: было 54.3% → стало 64.3% (+10pp).
+W_TARGETS_ENEMY = {
+    'area_inv':        +0.4,
+    'wnn_close_res':   +0.8,
+    'mean_dist_all':   -0.5,   # усилен: победа тесно связана с атакой близких врагов
+    'prod':            +0.5,
+    'ships':           -0.5,
+    'n_cross':         +0.4,
+    'late_aggression': -0.6,   # НЕГАТИВНЫЙ: флипнут с +0.9 (2025-05 эмп. анализ)
+                               # phase-multiplier: early ≈ 0, late = −0.6
+    'ripeness':        +0.9,   # NEW: эмп. вес +2.88, второй по силе после wnn
+}
+
+# backward-compat alias (используется старым кодом и agent.py)
+W_TARGETS = W_TARGETS_ENEMY
 
 THR_HI = 0.5
 THR_LO = -0.5
@@ -80,24 +111,41 @@ def _zscore(s):
     return (s - s.mean()) / sig
 
 
-def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0):
+def compute_zones(df, w_ours=W_OURS, w_targets=None,
+                  w_targets_neutral=None, w_targets_enemy=None,
+                  player=0, step=0):
     """
     Принимает DataFrame с колонками ZONE_FEATURES + 'owner' + 'pid'.
     Возвращает (df_extended, Z_scores).
 
-    `step` — ход матча. Используется как phase-множитель ТОЛЬКО для
-    late_aggression-фичи: эффективный вес = phase · w_targets['late_aggression'].
-    Применяется на уровне веса (а не самой фичи), чтобы z-score не сокращал
-    общий phase-множитель — иначе разница между early и late игрой стиралась.
+    Веса целей:
+      w_targets_neutral — для нейтральных планет (default: W_TARGETS_NEUTRAL)
+      w_targets_enemy   — для вражеских планет   (default: W_TARGETS_ENEMY)
+      w_targets         — backward-compat: если задан, используется для обоих
+
+    phase-множитель применяется к late_aggression:
+      эффективный вес = phase × w['late_aggression']
+      neutral: late_aggression позитивный → растёт к концу (глубокие нейтральные ценнее)
+      enemy:   late_aggression негативный → растёт штраф к концу (ближе = лучше)
     """
+    # Разрешаем веса: backward-compat через w_targets
+    if w_targets_neutral is None:
+        w_targets_neutral = w_targets if w_targets is not None else W_TARGETS_NEUTRAL
+    if w_targets_enemy is None:
+        w_targets_enemy = w_targets if w_targets is not None else W_TARGETS_ENEMY
+
     out = df.copy()
-    Z = pd.DataFrame({m: _zscore(out[m]) for m in ZONE_FEATURES}, index=out.index)
+    # z-score по всем планетам вместе (нормализация общая — так относительные
+    # ранги между нейтральными и вражескими сохраняются корректно)
+    feat_present = [m for m in ZONE_FEATURES if m in out.columns]
+    Z = pd.DataFrame({m: _zscore(out[m]) for m in feat_present}, index=out.index)
     out['priority'] = 0.0
 
-    is_ours = out['owner'] == player
-    is_tgt  = ~is_ours
+    is_ours    = out['owner'] == player
+    is_neutral = (~is_ours) & (out['owner'] == _NEUTRAL_OWNER)
+    is_enemy   = (~is_ours) & (out['owner'] != _NEUTRAL_OWNER)
 
-    # phase-множитель — для late_aggression домножим вес.
+    # phase-множитель — только для late_aggression (знак уже в весе)
     phase = max(0.0, min(1.0, float(step) / float(TOTAL_STEPS)))
 
     def _eff_weights(base):
@@ -106,14 +154,20 @@ def compute_zones(df, w_ours=W_OURS, w_targets=W_TARGETS, player=0, step=0):
         return eff
 
     eff_ours    = _eff_weights(w_ours)
-    eff_targets = _eff_weights(w_targets)
+    eff_neutral = _eff_weights(w_targets_neutral)
+    eff_enemy   = _eff_weights(w_targets_enemy)
 
-    out.loc[is_ours, 'priority'] = sum(
-        eff_ours[m] * Z.loc[is_ours, m] for m in ZONE_FEATURES
-    )
-    out.loc[is_tgt, 'priority'] = sum(
-        eff_targets[m] * Z.loc[is_tgt, m] for m in ZONE_FEATURES
-    )
+    def _score(mask, eff):
+        if not mask.any():
+            return
+        out.loc[mask, 'priority'] = sum(
+            eff.get(m, 0.0) * Z.loc[mask, m]
+            for m in feat_present
+        )
+
+    _score(is_ours,    eff_ours)
+    _score(is_neutral, eff_neutral)
+    _score(is_enemy,   eff_enemy)
 
     def label(idx):
         z    = Z.loc[idx]
@@ -219,6 +273,7 @@ def _planet_zone_features(state, p, player, horizon, ships_ref, comet_ids=None, 
         'mean_dist_all':  mean_dist_all,
         'n_cross':        float(n_cross),
         'late_aggression': float(late_aggression),
+        'ripeness':       float(ripeness),   # prod/(1+ships) — эмп. вес: +0.9 neutral, +2.9 enemy
     }
 
 
@@ -249,6 +304,8 @@ def compute_zones_from_state(state, player=0, horizon=HORIZON, ships_ref=SHIPS_R
 
 
 __all__ = [
-    'ZONE_FEATURES', 'W_OURS', 'W_TARGETS', 'THR_HI', 'THR_LO', 'ZONE_COLORS',
+    'ZONE_FEATURES', 'W_OURS', 'W_TARGETS',
+    'W_TARGETS_NEUTRAL', 'W_TARGETS_ENEMY',
+    'THR_HI', 'THR_LO', 'ZONE_COLORS',
     'compute_zones', 'compute_zones_from_state',
 ]
