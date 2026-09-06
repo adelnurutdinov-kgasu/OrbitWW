@@ -3,7 +3,7 @@ test_scenario.py — синтетический сценарий с измери
 ускорения захвата.
 
 Запуск:
-    cd /Users/adel/Documents/GitHub/OrbitWW/agent_bundle_timeline_swarm
+    cd <корень репозитория>/agent_bundle_timeline_swarm
     python test_scenario.py
 
 Что тестируем:

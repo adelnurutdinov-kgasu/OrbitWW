@@ -22,3 +22,7 @@ opponent_learning/data/processed/choice_sets.csv
 opponent_learning/rebuild/data/zones_features_cache.csv
 opponent_learning/data/raw/*.json
 !opponent_learning/data/raw/episodes_index.json
+
+# --- логи и архивы сборок ---
+*.log
+orbit-wars.zip

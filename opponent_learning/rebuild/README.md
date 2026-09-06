@@ -47,7 +47,7 @@ rebuild/
 
 Тяжёлые скрипты (обучение моделей на 360K строк, парсинг 2.6 GB) — лучше запускать локально:
 ```bash
-cd /Users/adel/Documents/GitHub/OrbitWW
+cd <корень репозитория>
 python3 opponent_learning/rebuild/scripts/<имя_скрипта>.py
 ```
 

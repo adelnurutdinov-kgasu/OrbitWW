@@ -7,6 +7,7 @@ tournament_from_csv.py — круговой турнир между кандид
 import os
 import sys
 import importlib.util
+from pathlib import Path
 import time
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -14,7 +15,10 @@ from dataclasses import asdict, fields as dc_fields
 from datetime import datetime
 
 # ========== КОНФИГ ========================================================
-CSV_CANDIDATES = "/Users/adel/Documents/GitHub/OrbitWW/tuning/results/eval_8winners_20260502_050430.csv"
+# Корень репозитория определяется от расположения этого файла
+PROJECT_ROOT = str(Path(__file__).resolve().parents[2])
+
+CSV_CANDIDATES = os.path.join(PROJECT_ROOT, "tuning", "results", "eval_8winners_20260502_050430.csv")
 N_MATCHES_PER_PAIR = 20
 SEED_OFFSET = 1000
 RUN_BACKEND = 'kaggle'          # 'kaggle' или 'local'
@@ -22,7 +26,6 @@ MAX_STEPS_PER_MATCH = 300
 N_WORKERS = max(1, os.cpu_count() // 2)
 
 # Путь к папке с агентами и к файлу agent.py
-PROJECT_ROOT = "/Users/adel/Documents/GitHub/OrbitWW"
 AGENT_BUNDLE_PATH = os.path.join(PROJECT_ROOT, "agent_bundle_swarm")
 AGENT_FILE = os.path.join(AGENT_BUNDLE_PATH, "agent.py")
 SWARM_FILE = os.path.join(AGENT_BUNDLE_PATH, "swarm.py")   # для импорта SwarmWeights

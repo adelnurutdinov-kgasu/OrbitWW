@@ -10,7 +10,8 @@ import seaborn as sns
 from pathlib import Path
 
 # ====== НАСТРОЙКИ ======
-CSV_FILE = "/Users/adel/Documents/GitHub/OrbitWW/tuning/results/tournament_20260511_091806.csv"  # замените на актуальный файл
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CSV_FILE = PROJECT_ROOT / "tuning" / "results" / "tournament_20260511_091806.csv"  # замените на актуальный файл
 SAVE_FIGURES = True
 OUTPUT_DIR = Path(".")  # куда сохранить графики
 # =======================
